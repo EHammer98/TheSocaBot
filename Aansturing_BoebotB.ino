@@ -8,6 +8,8 @@
 int servoLeft = 11;
 int servoRight = 10;
 
+void Drive (int timeL, int timeR); // Prototype for the drive function for the Boe-Bot.
+
 void setup() {
   Serial.begin(9600);
   
@@ -42,7 +44,7 @@ void Drive (int timeL, int timeR){
   }
   
   // If timeL is greater than timeR then turn servoR low faster.
-  else if((timeL > timeR){
+  else if(timeL > timeR){
     digitalWrite(servoLeft, HIGH);
     digitalWrite(servoRight, HIGH);
     delayMicroseconds(timeR);
