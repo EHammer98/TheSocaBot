@@ -4,8 +4,8 @@
 #Hardware:           Arduino Mega 2560                      #
 #Eerste opzet:       26-11-2019                             #
 #Auteurs: E. Hammer | N. Vollebregt | M. Remmig | O. Cekem  #
-#Laatst gewijzigd:   28-11-2019                             #
-#Versie:             1.0.1                                  #
+#Laatst gewijzigd:   03-12-2019                             #
+#Versie:             1.0.2                                  #
 #############################################################
 
 ##WAT JE NIET MAG GEBRUIKEN##
@@ -53,12 +53,9 @@ int IR2 = A7;     //IR rechts
 int IR3 = A8;     //*IR reserve*
 
 //Sensoren
-int thresholdDistance = 5; //Drempelwaarde om de afstand mee te vergelijken
-int laserDeteced = 0;       //0 = geen laser | 1 = wel een laser
-int allIR = 0;
-int leftIR = 0;
-int rightIR = 0;
-int frontIR = 0;
+int thresholdDistance = 5;  //Drempelwaarde om de afstand mee te vergelijken (in CM)
+int laserDetected = 0;      //0=geen|1=linksVoor|2=Voor|3=rechtsVoor|4=rechtsAchter|5=linksAchter
+int irDetected = 0;         //0=geen|1=links|2=front|3=right
 //Initializeren van de firmware
 void setup() {
   Serial.begin(9600); //Start een serieële verbinding
