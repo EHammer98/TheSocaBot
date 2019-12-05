@@ -70,15 +70,15 @@ void setup() {
   pinMode(speaker, OUTPUT); //Defineer ultraT als een uitgang
   pinMode(servoR, OUTPUT); //Defineer servoR als een uitgang
   pinMode(servoL, OUTPUT); //Defineer servoL als een uitgang
-  pinMode(LDR0, OUTPUT); //Defineer LDR0 als een uitgang
-  pinMode(LDR1, OUTPUT); //Defineer LDR1 als een uitgang
-  pinMode(LDR2, OUTPUT); //Defineer LDR2 als een uitgang
-  pinMode(LDR3, OUTPUT); //Defineer LDR3 als een uitgang
-  pinMode(LDR4, OUTPUT); //Defineer LDR4 als een uitgang
-  pinMode(IR0, OUTPUT); //Defineer IR1 als een uitgang
-  pinMode(IR1, OUTPUT); //Defineer IR2 als een uitgang
-  pinMode(IR2, OUTPUT); //Defineer IR3 als een uitgang
-  pinMode(IR3, OUTPUT); //Defineer IR4 als een uitgang
+  pinMode(LDR0, INPUT); //Defineer LDR0 als een uitgang
+  pinMode(LDR1, INPUT); //Defineer LDR1 als een uitgang
+  pinMode(LDR2, INPUT); //Defineer LDR2 als een uitgang
+  pinMode(LDR3, INPUT); //Defineer LDR3 als een uitgang
+  pinMode(LDR4, INPUT); //Defineer LDR4 als een uitgang
+  pinMode(IR0, INPUT); //Defineer IR1 als een uitgang
+  pinMode(IR1, INPUT); //Defineer IR2 als een uitgang
+  pinMode(IR2, INPUT); //Defineer IR3 als een uitgang
+  pinMode(IR3, INPUT); //Defineer IR4 als een uitgang
 }
 
 void loop() {
