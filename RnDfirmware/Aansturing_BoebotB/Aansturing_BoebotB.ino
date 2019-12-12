@@ -3,26 +3,26 @@
 // Onurcan Cekem
 // 28/11/2019
 
-// WriteMicroseconds (1500) = stil.
+// WriteMicroseconds (1500) = stay put.
 // pin 11 = left servo.
 // pin 10 = right servo (inverted, 1400 = forward).
 
-int servoLeft = 11;
+int ServoLeft = 11;
 int servoRight = 10;
 
 void Drive (int timeL, int timeR); // Prototype for the Drive function for the Boe-Bot.
-void Stilstaan(); // Prototype for the Stilstaan function.
-void Rechtdoor(); // Prototype for the Rechtdoor function.
-void Links(); // Prototype for the Links function.
-void Rechts(); // Prototype for the Rechts function.
-void ScherpLinks(); // Prototype for the ScherpLinks function.
-void ScherpRechts(); // Prototype for the ScherpRechts function.
+void ServoStop(); // Prototype for the ServoStop function.
+void ServoForward(); // Prototype for the ServoForward function.
+void ServoTurnLeft(); // Prototype for the ServoTurnLeft function.
+void ServoTurnRight(); // Prototype for the ServoTurnRight function.
+void ServoSharpLeft(); // Prototype for the ServoSharpLeft function.
+void ServoSharpRight(); // Prototype for the ServoSharpRight function.
 
 void setup() {
   Serial.begin(9600);
   
-  // Initialize servoLeft and servoRight.
-  pinMode(servoLeft, OUTPUT);
+  // Initialize ServoLeft and servoRight.
+  pinMode(ServoLeft, OUTPUT);
   pinMode(servoRight, OUTPUT);
 }
 
@@ -39,31 +39,31 @@ void Drive (int timeL, int timeR){
   
   // If the time is equal then there is no need to do timeL - timeR.
   if(timeL == timeR){
-    digitalWrite(servoLeft, HIGH);
+    digitalWrite(ServoLeft, HIGH);
     digitalWrite(servoRight, HIGH);
     delayMicroseconds(timeL);
     digitalWrite(servoRight, LOW);
-    digitalWrite(servoLeft, LOW);
+    digitalWrite(ServoLeft, LOW);
   }
   
   // If timeL is greater than timeR then turn servoR low faster.
   else if(timeL > timeR){
-    digitalWrite(servoLeft, HIGH);
+    digitalWrite(ServoLeft, HIGH);
     digitalWrite(servoRight, HIGH);
     delayMicroseconds(timeR);
     digitalWrite(servoRight, LOW);
     delayMicroseconds(timeL-timeR);
-    digitalWrite(servoLeft, LOW);
+    digitalWrite(ServoLeft, LOW);
   }
 
   // If timeR is greater than timeR then turn servoL low faster.
   else if(timeL < timeR){
-    digitalWrite(servoLeft, HIGH);
+    digitalWrite(ServoLeft, HIGH);
     digitalWrite(servoRight, HIGH);
     delayMicroseconds(timeL);
     digitalWrite(servoRight, LOW);
     delayMicroseconds(timeR-timeL);
-    digitalWrite(servoLeft, LOW);
+    digitalWrite(ServoLeft, LOW);
   }
   
   // Delay of 20 ms.
@@ -72,40 +72,40 @@ void Drive (int timeL, int timeR){
 
 // Working basic function.
 //void Drive (int t){
-//  digitalWrite(servoLeft, HIGH);
+//  digitalWrite(ServoLeft, HIGH);
 //  digitalWrite(servoRight, HIGH);
 //  delayMicroseconds(t);
-//  digitalWrite(servoLeft, LOW);
+//  digitalWrite(ServoLeft, LOW);
 //  digitalWrite(servoRight, LOW);
 //  delay(20);
 //}
 
 // Function to stay put.
-void Stilstaan(){
+void ServoStop(){
   Drive (1500, 1500);
 }
 
 // Function to drive forward.
-void Rechtdoor(){
+void ServoForward(){
   Drive (1600, 1400);
 }
 
 // Function to turn left.
-void Links(){
+void ServoTurnLeft(){
   Drive (1500, 1400);
 }
 
 // Function to turn right.
-void Rechts(){
+void ServoTurnRight(){
   Drive (1600, 1500);
 }
 
 // Function to turn sharp left.
-void ScherpLinks(){
+void ServoSharpLeft(){
   Drive (1600, 1600);
 }
 
 // Function to turn sharp right.
-void ScherpRechts(){
+void ServoSharpRight(){
   Drive (1400, 1400);
 }
