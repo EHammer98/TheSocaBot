@@ -1,5 +1,7 @@
 // Programma Aansturing_BoebotB
-// Hierin schrijf ik hoe ik de Servo aanstur zonder Servo.h.
+// Hierin schrijf ik hoe ik de Servo aanstuur zonder Servo.h.
+// Onurcan Cekem
+// 28/11/2019
 
 // WriteMicroseconds (1500) = stil.
 // pin 11 = left servo.
@@ -8,7 +10,13 @@
 int servoLeft = 11;
 int servoRight = 10;
 
-void Drive (int timeL, int timeR); // Prototype for the drive function for the Boe-Bot.
+void Drive (int timeL, int timeR); // Prototype for the Drive function for the Boe-Bot.
+void Stilstaan(); // Prototype for the Stilstaan function.
+void Rechtdoor(); // Prototype for the Rechtdoor function.
+void Links(); // Prototype for the Links function.
+void Rechts(); // Prototype for the Rechts function.
+void ScherpLinks(); // Prototype for the ScherpLinks function.
+void ScherpRechts(); // Prototype for the ScherpRechts function.
 
 void setup() {
   Serial.begin(9600);
@@ -22,16 +30,11 @@ void loop() {
 
   Drive(1600, 1400);
 
-//  servoL.writeMicroseconds(1600);
-//  servoR.writeMicroseconds(1400);
-//  delay(500);
-//  servoL.writeMicroseconds(1400);
-//  servoR.writeMicroseconds(1600);
-//  delay(500);
 
 }
 
 // Drive function for giving the servo's the correct time to turn on and off based on their given timers. This allows the vehicle to drive with no limits.
+// The values given should be between 1000-2000 in order to work properly.
 void Drive (int timeL, int timeR){
   
   // If the time is equal then there is no need to do timeL - timeR.
@@ -76,3 +79,33 @@ void Drive (int timeL, int timeR){
 //  digitalWrite(servoRight, LOW);
 //  delay(20);
 //}
+
+// Function to stay put.
+void Stilstaan(){
+  Drive (1500, 1500);
+}
+
+// Function to drive forward.
+void Rechtdoor(){
+  Drive (1600, 1400);
+}
+
+// Function to turn left.
+void Links(){
+  Drive (1500, 1400);
+}
+
+// Function to turn right.
+void Rechts(){
+  Drive (1600, 1500);
+}
+
+// Function to turn sharp left.
+void ScherpLinks(){
+  Drive (1600, 1600);
+}
+
+// Function to turn sharp right.
+void ScherpRechts(){
+  Drive (1400, 1400);
+}
