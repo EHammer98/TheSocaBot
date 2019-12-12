@@ -17,6 +17,7 @@ void ServoTurnLeft(); // Prototype for the ServoTurnLeft function.
 void ServoTurnRight(); // Prototype for the ServoTurnRight function.
 void ServoSharpLeft(); // Prototype for the ServoSharpLeft function.
 void ServoSharpRight(); // Prototype for the ServoSharpRight function.
+void ServoBackward(); // Prototype for the ServoBackward function.
 
 void setup() {
   Serial.begin(9600);
@@ -108,4 +109,9 @@ void ServoSharpLeft(){
 // Function to turn sharp right.
 void ServoSharpRight(){
   Drive (1400, 1400);
+}
+
+// Function to drive backward.
+void ServoBackward(){
+  Drive (1400, 1600);
 }
