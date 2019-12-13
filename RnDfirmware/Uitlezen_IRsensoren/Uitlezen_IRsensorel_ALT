@@ -1,0 +1,43 @@
+const int NumReadings = 10;   // hoe vaak sensoren worden uitgelezen voor een gemiddelde bepaling
+const int CompareValue_IR = 600;   // grenswaarde IR sensoren
+
+[...]   // setup en dergelijke weggelaten voor overzichtelijkheid
+
+char IRsensorRead(void)
+{
+  int IRvalue_l[NumReadings];   // een array voor elke IR sensor: (l)inks, (m)idden en (r)echts
+  int IRvalue_m[NumReadings];
+  int IRvalue_r[NumReadings];
+  
+  int tot_l = 0;   // totaal van array
+  int tot_m = 0;
+  int tot_r = 0;
+  
+  int avg_l = 0;   // gemiddelde van array
+  int avg_m = 0;
+  int avg_r = 0;
+  
+  char ReturnValue_IR;   // bitreeks waarvan de 3 LSB veranderen op basis van sensorwaarden
+  
+  int i;  // teller voor vullen van array
+
+  for (i = 0; i < NumReadings; i++)
+  {
+    IRvalue_l[i] = analogRead(IRpin_l);
+    tot_l = tot_l + IRvalue_l[i];
+    IRvalue_m[i] = analogRead(IRpin_m);
+    tot_m = tot_m + IRvalue_m[i];
+    IRvalue_r[i] = analogRead(IRpin_r);
+    tot_r = tot_r + IRvalue_r[i];
+  }
+  
+  avg_l = tot_l / NumReadings;
+  avg_m = tot_m / NumReadings;
+  avg_r = tot_r / NumReadings;
+  
+  if(avg_l < CompareValue_IR) ReturnValue_IR |= 0x01; else ReturnValue_IR &= ~(0x01);
+  if(avg_m < CompareValue_IR) ReturnValue_IR |= 0x02; else ReturnValue_IR &= ~(0x02);
+  if(avg_r < CompareValue_IR) ReturnValue_IR |= 0x04; else ReturnValue_IR &= ~(0x04);
+  
+  return ReturnValue_IR;
+}
