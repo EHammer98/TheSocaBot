@@ -25,27 +25,28 @@ void loop()
 }
 
 
-char IRsensorRead(void)
+char IRsensorRead(void)  // leest IR sensoren twee keer uit met een delay ertussen en vergelijkt met grenswaarde
 {
-   int IRvalue_l = 0;
-   int IRvalue_m = 0;
-   int IRvalue_r = 0;
+   int IRvalue_l1 = 0;
+   int IRvalue_m1 = 0;
+   int IRvalue_r1 = 0;
+   int IRvalue_l2 = 0;
+   int IRvalue_m2 = 0;
+   int IRvalue_r3 = 0;
    int CompareValue_IR = 300;
    char ReturnValue_IR;
 
-   IRvalue_l = analogRead(IRpin_l);
-   IRvalue_m = analogRead(IRpin_m);
-   IRvalue_r = analogRead(IRpin_r);
-   Serial.print(IRvalue_l);
-   Serial.print("\t");
-   Serial.print(IRvalue_m);
-   Serial.print("\t");
-   Serial.print(IRvalue_r);
-   Serial.print("\n");
+   IRvalue_l1 = analogRead(IRpin_l);
+   IRvalue_m1 = analogRead(IRpin_m);
+   IRvalue_r1 = analogRead(IRpin_r);
+   delay(5);
+   IRvalue_l2 = analogRead(IRpin_l);
+   IRvalue_m2 = analogRead(IRpin_m);
+   IRvalue_r2 = analogRead(IRpin_r);
 
-   if(IRvalue_l < CompareValue_IR) ReturnValue_IR |= 0x01; else ReturnValue_IR &= ~(0x01);
-   if(IRvalue_m < CompareValue_IR) ReturnValue_IR |= 0x02; else ReturnValue_IR &= ~(0x02);
-   if(IRvalue_r < CompareValue_IR) ReturnValue_IR |= 0x04; else ReturnValue_IR &= ~(0x04);
+   if(IRvalue_l1 < CompareValue_IR || IRvalue_l2 < CompareValue_IR) ReturnValue_IR |= 0x01; else ReturnValue_IR &= ~(0x01);
+   if(IRvalue_m1 < CompareValue_IR || IRvalue_m2 < CompareValue_IR) ReturnValue_IR |= 0x02; else ReturnValue_IR &= ~(0x02);
+   if(IRvalue_r1 < CompareValue_IR || IRvalue_r2 < CompareValue_IR) ReturnValue_IR |= 0x04; else ReturnValue_IR &= ~(0x04);
 
    return ReturnValue_IR;
 }
@@ -61,35 +62,35 @@ char IRsensorRead(void)
 //
 //  case 0x02:
 //  {
-//    //rij rechtdoor
+//    // rij rechtdoor
 //  }
 //  break;
 //  
 //  case 0x03:
 //  {
-//    //stuur langzaam links
+//    // stuur langzaam links
 //  }
 //  break;
 //
 //  case 0x04:
 //  {
-//    //stuur scherp rechts
+//    // stuur scherp rechts
 //  }
 //  break;
 //
 //  case 0x06:
 //  {
-//    //stuur langzaam rechts
+//    // stuur langzaam rechts
 //  }
 //  break;
 //  case 0x07:
 //  {
-//    /*rechtdoor (komt waarschijnlijk niet voor want als alle sensoren HIGH readen dan is de volger heel dichtbij de boebot */
+//    // rechtdoor (alle sensoren HIGH)
 //  }
 //
 //  default:
 //  {
-//    //rondje draaien
+//    // rondje draaien (leader kwijt)
 //  }
 //  
 //}
