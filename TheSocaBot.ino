@@ -4,8 +4,8 @@
   #Hardware:           Arduino Mega 2560                      #
   #Eerste opzet:       26-11-2019                             #
   #Auteurs: E. Hammer | N. Vollebregt | M. Remmig | O. Cekem  #
-  #Laatst gewijzigd:   03-12-2019                             #
-  #Versie:             1.0.3                                  #
+  #Laatst gewijzigd:   17-12-2019                             #
+  #Versie:             1.0.4                                  #
   #############################################################
 
   ##WAT JE NIET MAG GEBRUIKEN##
@@ -53,36 +53,51 @@ int IR2 = A7;     //IR rechts
 int IR3 = A8;     //*IR reserve*
 
 //Thresholds
-int thresholdDistance = 5;  //Drempelwaarde om de afstand mee te vergelijken (in CM)
-int laserThreshold = 850;   //800
-int irThreshold = 0;        //0
+int thresholdDistance = 5;  //Drempelwaarde om de afstand mee te vergelijken (in CM)#5
+int laserThreshold = 850;   //Drempelwaarde om de laser mee te detecteren #800
+int irThreshold = 300;      //Drempelwaarde om de leader (IR) mee te detecteren #300
 
 //Sensoren
 int laserDetected = 0;      //0=geen|1=linksVoor|2=Voor|3=rechtsVoor|4=rechtsAchter|5=linksAchter
 int irDetected = 0;         //0=geen|1=links|2=front|3=right
 int distance = 0;           //0=stop|1=checkLDR|2=reverse
+
+void distanceCheck();     // Prototype for checking the distance.
+void checkLDR();          //Prototype for detecting a laser function.
+void laserDrive();        // Prototype for driving to the laser function.
+void checkIR();           // Prototype for detecting IR (leader)function.
+void irDrive();           // Prototype for driving to the leader function.
+void Drive (int timeL, int timeR);
+void ServoStop();         // Prototype for the ServoStop function.
+void ServoForward();      // Prototype for the ServoForward function.
+void ServoTurnLeft();     // Prototype for the ServoTurnLeft function.
+void ServoTurnRight();    // Prototype for the ServoTurnRight function.
+void ServoSharpLeft();    // Prototype for the ServoSharpLeft function.
+void ServoSharpRight();   // Prototype for the ServoSharpRight function.
+void ServoBackward();     // Prototype for the ServoBackward function.
+
 //Initializeren van de firmware
 void setup() {
   Serial.begin(9600); //Start een serieële verbinding
-  pinMode(LED0, OUTPUT); //Defineer LED0 als een uitgang
-  pinMode(LED1, OUTPUT); //Defineer LED1 als een uitgang
-  pinMode(LED2, OUTPUT); //Defineer LED2 als een uitgang
-  pinMode(LED3, OUTPUT); //Defineer LED3 als een uitgang
-  pinMode(LED4, OUTPUT); //Defineer LED4 als een uitgang
-  pinMode(ultraT, OUTPUT); //Defineer ultraT als een uitgang
-  pinMode(ultraE, INPUT); //Defineer ultraE als een ingang
-  pinMode(speaker, OUTPUT); //Defineer speaker als een uitgang
-  pinMode(servoR, OUTPUT); //Defineer servoR als een uitgang
-  pinMode(servoL, OUTPUT); //Defineer servoL als een uitgang
-  pinMode(LDR0, INPUT); //Defineer LDR0 als een uitgang
-  pinMode(LDR1, INPUT); //Defineer LDR1 als een uitgang
-  pinMode(LDR2, INPUT); //Defineer LDR2 als een uitgang
-  pinMode(LDR3, INPUT); //Defineer LDR3 als een uitgang
-  pinMode(LDR4, INPUT); //Defineer LDR4 als een uitgang
-  pinMode(IR0, INPUT); //Defineer IR1 als een uitgang
-  pinMode(IR1, INPUT); //Defineer IR2 als een uitgang
-  pinMode(IR2, INPUT); //Defineer IR3 als een uitgang
-  pinMode(IR3, INPUT); //Defineer IR4 als een uitgang
+  pinMode(LED0, OUTPUT);      //Defineer LED0 als een uitgang
+  pinMode(LED1, OUTPUT);      //Defineer LED1 als een uitgang
+  pinMode(LED2, OUTPUT);      //Defineer LED2 als een uitgang
+  pinMode(LED3, OUTPUT);      //Defineer LED3 als een uitgang
+  pinMode(LED4, OUTPUT);      //Defineer LED4 als een uitgang
+  pinMode(ultraT, OUTPUT);    //Defineer ultraT als een uitgang
+  pinMode(ultraE, INPUT);     //Defineer ultraE als een ingang
+  pinMode(speaker, OUTPUT);   //Defineer speaker als een uitgang
+  pinMode(servoR, OUTPUT);    //Defineer servoR als een uitgang
+  pinMode(servoL, OUTPUT);    //Defineer servoL als een uitgang
+  pinMode(LDR0, INPUT);       //Defineer LDR0 als een uitgang
+  pinMode(LDR1, INPUT);       //Defineer LDR1 als een uitgang
+  pinMode(LDR2, INPUT);       //Defineer LDR2 als een uitgang
+  pinMode(LDR3, INPUT);       //Defineer LDR3 als een uitgang
+  pinMode(LDR4, INPUT);       //Defineer LDR4 als een uitgang
+  pinMode(IR0, INPUT);        //Defineer IR1 als een uitgang
+  pinMode(IR1, INPUT);        //Defineer IR2 als een uitgang
+  pinMode(IR2, INPUT);        //Defineer IR3 als een uitgang
+  pinMode(IR3, INPUT);        //Defineer IR4 als een uitgang
 }
 
 void loop() {
@@ -158,29 +173,32 @@ void laserDrive() { //SFC 5
     case 1:
       Serial.println("LINKSvoor");
       digitalWrite(LED1, HIGH);
-      //ServoTurnLeft //Boe-Bot draait naar links
+      ServoTurnLeft(); //Boe-Bot draait naar links
       loop();
       break;
     case 2:
       Serial.println("VOORvoorkant");
       digitalWrite(LED3, HIGH);
-      //ServoForward // Boe-Bot gaat naar voren
+      ServoForward(); // Boe-Bot gaat naar voren
       loop();
       break;
     case 3:
       Serial.println("RECHTSvoor");
       digitalWrite(LED2, HIGH);
-      //ServoTurnRight // Boe-Bot draait naar rechts
+      ServoTurnRight(); // Boe-Bot draait naar rechts
+      loop();
       break;
     case 4:
       Serial.println("RECHTSachter");
       digitalWrite(LED2, HIGH);
-      //ServoTurnRight // Boe-Bot draait naar rechts
+      ServoTurnRight(); // Boe-Bot draait naar rechts
+      loop();
       break;
     case 5:
       Serial.println("LINKSachter");
       digitalWrite(LED1, HIGH);
-      //ServoTurnLeft //Boe-Bot draait naar links
+      ServoTurnLeft(); //Boe-Bot draait naar links
+      loop();
       break;
     default:
       loop();
@@ -217,25 +235,101 @@ void irDrive() { //SFC 4
   switch (irDetected) {
     case 0:
       Serial.println("GEEN ir, rondje");
-      //servoArround();
+      ServoTurnLeft();
+      loop();
       break;
     case 1:
       Serial.println("LINKS");
       digitalWrite(LED1, HIGH);
-      //servoSharpLeft
+      ServoSharpLeft();
+      loop();
       break;
     case 2:
       Serial.println("RECHTS");
       digitalWrite(LED2, HIGH);
-      //servoSharpRight
+      ServoSharpRight();
+      loop();
       break;
     case 3:
       Serial.println("VOOR");
       digitalWrite(LED3, HIGH);
-      //servoForward
+      ServoForward();
+      loop();
       break;
     default:
       loop();
       break;
   }
+}
+
+// Drive function for giving the servo's the correct time to turn on and off based on their given timers. This allows the vehicle to drive with no limits.
+// The values given should be between 1000-2000 in order to work properly.
+void Drive (int timeL, int timeR){
+  
+  // If the time is equal then there is no need to do timeL - timeR.
+  if(timeL == timeR){
+    digitalWrite(servoL, HIGH);
+    digitalWrite(servoR, HIGH);
+    delayMicroseconds(timeL);
+    digitalWrite(servoR, LOW);
+    digitalWrite(servoL, LOW);
+  }
+  
+  // If timeL is greater than timeR then turn servoR low faster.
+  else if(timeL > timeR){
+    digitalWrite(servoL, HIGH);
+    digitalWrite(servoR, HIGH);
+    delayMicroseconds(timeR);
+    digitalWrite(servoR, LOW);
+    delayMicroseconds(timeL-timeR);
+    digitalWrite(servoL, LOW);
+  }
+
+  // If timeR is greater than timeR then turn servoL low faster.
+  else if(timeL < timeR){
+    digitalWrite(servoL, HIGH);
+    digitalWrite(servoR, HIGH);
+    delayMicroseconds(timeL);
+    digitalWrite(servoR, LOW);
+    delayMicroseconds(timeR-timeL);
+    digitalWrite(servoL, LOW);
+  }
+  
+  // Delay of 20 ms.
+  delay(20);
+}
+
+// Function to stay put.
+void ServoStop(){
+  Drive (1500, 1500);
+}
+
+// Function to drive forward.
+void ServoForward(){
+  Drive (1600, 1400);
+}
+
+// Function to turn left.
+void ServoTurnLeft(){
+  Drive (1500, 1400);
+}
+
+// Function to turn right.
+void ServoTurnRight(){
+  Drive (1600, 1500);
+}
+
+// Function to turn sharp left.
+void ServoSharpLeft(){
+  Drive (1600, 1600);
+}
+
+// Function to turn sharp right.
+void ServoSharpRight(){
+  Drive (1400, 1400);
+}
+
+// Function to drive backward.
+void ServoBackward(){
+  Drive (1400, 1600);
 }

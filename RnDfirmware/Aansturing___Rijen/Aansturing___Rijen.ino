@@ -18,27 +18,29 @@ void setup() {
   // Initialize servoLeft and servoRight.
   pinMode(servoLeft, OUTPUT);
   pinMode(servoRight, OUTPUT);
-  pinMode(53, OUTPUT);
-  pinMode(52, INPUT);
+  pinMode(7, OUTPUT);
+  pinMode(8, INPUT);
   pinMode(51, OUTPUT);
 }
  
 
 void loop() {
 
+
+
+//if(sVal0<15 && sVal0>0){
+//  digitalWrite(51,HIGH);
+//}
+//else{
+//  digitalWrite(51,LOW);
+//}
+
+Serial.println(sVal0);
 UltraDetectie();
-
-if(sVal0<15 && sVal0>0){
-  digitalWrite(51,HIGH);
-}
-else{
-  digitalWrite(51,LOW);
-}
-
 if(sVal0<15 && sVal0>0){
   Drive (1500, 1500);
 }
-else{
+if(sVal0>15){
   Drive (1600, 1400);
 }
 }
@@ -80,14 +82,14 @@ void Drive (int timeL, int timeR){
 }
 
 void UltraDetectie(){
-digitalWrite(53,HIGH);
+digitalWrite(7,HIGH);
 delayMicroseconds(10);
-digitalWrite(53,LOW);
+digitalWrite(7,LOW);
 delayMicroseconds(10);
 
-sVal0 = pulseIn(52, HIGH);
+sVal0 = pulseIn(8, HIGH);
 sVal0 = sVal0/58;
-delay(10);
+//delay(10);
 }
 
 
