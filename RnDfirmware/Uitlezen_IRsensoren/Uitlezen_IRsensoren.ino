@@ -1,9 +1,9 @@
 // Code voor het uitlezen van IR sensoren en aansturen van de bijbehorende leds
 // Plus opzet voor aansturing servo's
 
-const int IRpin_l = A3;   // Pins die door de functie gebruikt worden
-const int IRpin_m = A4;
-const int IRpin_r = A5;
+const int IRpin_l = A5;   // Pins die door de functie gebruikt worden
+const int IRpin_m = A6;
+const int IRpin_r = A7;
 const int LEDpin_l = 3;
 const int LEDpin_m = 4;
 const int LEDpin_r = 5;
