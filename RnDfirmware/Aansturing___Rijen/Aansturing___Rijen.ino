@@ -7,7 +7,7 @@
 
 int servoLeft = 11;
 int servoRight = 10;
-int sVal0;
+float sVal0;
 
 
 
@@ -37,13 +37,13 @@ void loop() {
 
 UltraDetectie();
 Serial.println(sVal0);
-if((sVal0<15) && (sVal0>0)){
+if((sVal0<15.59) && (sVal0>0)){
   Drive (1400, 1600);
 }
-else if(sVal0>15){
+else if(sVal0>15.59){
   Drive (1600, 1400);
 }
-else if(sVal0==15){
+else if(sVal0==15.59){
   Drive (1500,1500);
 }
 }
