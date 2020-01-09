@@ -7,7 +7,7 @@
 
 int servoLeft = 11;
 int servoRight = 10;
-int sVal0;
+float sVal0;
 
 
 
@@ -35,13 +35,16 @@ void loop() {
 //  digitalWrite(51,LOW);
 //}
 
-Serial.println(sVal0);
 UltraDetectie();
-if(sVal0<15 && sVal0>0){
-  Drive (1500, 1500);
+Serial.println(sVal0);
+if((sVal0<15.59) && (sVal0>0)){
+  Drive (1400, 1600);
 }
-if(sVal0>15){
+else if(sVal0>15.59){
   Drive (1600, 1400);
+}
+else if(sVal0==15.59){
+  Drive (1500,1500);
 }
 }
 
@@ -72,9 +75,9 @@ void Drive (int timeL, int timeR){
     digitalWrite(servoLeft, HIGH);
     digitalWrite(servoRight, HIGH);
     delayMicroseconds(timeL);
-    digitalWrite(servoRight, LOW);
-    delayMicroseconds(timeR-timeL);
     digitalWrite(servoLeft, LOW);
+    delayMicroseconds(timeR-timeL);
+    digitalWrite(servoRight, LOW);
   }
   
   // Delay of 20 ms.

@@ -47,7 +47,7 @@ void Drive (int timeL, int timeR){
     digitalWrite(ServoLeft, LOW);
   }
   
-  // If timeL is greater than timeR then turn servoR low faster.
+  // If timeL is greater than timeR then turn servoR low earlier.
   else if(timeL > timeR){
     digitalWrite(ServoLeft, HIGH);
     digitalWrite(servoRight, HIGH);
@@ -57,14 +57,14 @@ void Drive (int timeL, int timeR){
     digitalWrite(ServoLeft, LOW);
   }
 
-  // If timeR is greater than timeR then turn servoL low faster.
+  // If timeR is greater than timeR then turn servoL low earlier.
   else if(timeL < timeR){
     digitalWrite(ServoLeft, HIGH);
     digitalWrite(servoRight, HIGH);
     delayMicroseconds(timeL);
-    digitalWrite(servoRight, LOW);
+    digitalWrite(servoLeft, LOW);
     delayMicroseconds(timeR-timeL);
-    digitalWrite(ServoLeft, LOW);
+    digitalWrite(ServoRight, LOW);
   }
   
   // Delay of 20 ms.
