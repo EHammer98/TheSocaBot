@@ -1,14 +1,14 @@
 // Code voor het uitlezen van IR sensoren en aansturen van de bijbehorende leds
 // Plus opzet voor aansturing servo's
 
-const int IRpin_l = A3;   // Pins die door de functie gebruikt worden
-const int IRpin_m = A4;
-const int IRpin_r = A5;
+const int IRpin_l = A5;   // Pins die door de functie gebruikt worden
+const int IRpin_m = A6;
+const int IRpin_r = A7;
 const int LEDpin_l = 3;
 const int LEDpin_m = 4;
 const int LEDpin_r = 5;
-const int NumReadings = 10;
-const int CompareValue_IR = 900;
+const int NumReadings = 4;
+const int CompareValue_IR = 512;
 
 char IRsensorRead(void);
 
@@ -54,18 +54,18 @@ char IRsensorRead(void)
     tot_m = tot_m + IRvalue_m[i];
     IRvalue_r[i] = analogRead(IRpin_r);
     tot_r = tot_r + IRvalue_r[i];
-    delay(5);
+    delay(13);
   }
   
-  avg_l = tot_l / NumReadings;
-  avg_m = tot_m / NumReadings;
-  avg_r = tot_r / NumReadings;
+  avg_l = 2 * (1024 - tot_l / NumReadings);
+  avg_m = 2 * (1024 - tot_m / NumReadings);
+  avg_r = 2 * (1024 - tot_r / NumReadings);
   Serial.println(avg_m);
   
   
-  if(avg_l < CompareValue_IR) ReturnValue_IR |= 0x01; else ReturnValue_IR &= ~(0x01);
-  if(avg_m < CompareValue_IR) ReturnValue_IR |= 0x02; else ReturnValue_IR &= ~(0x02);
-  if(avg_r < CompareValue_IR) ReturnValue_IR |= 0x04; else ReturnValue_IR &= ~(0x04);
+  if(avg_l > CompareValue_IR) ReturnValue_IR |= 0x01; else ReturnValue_IR &= ~(0x01);
+  if(avg_m > CompareValue_IR) ReturnValue_IR |= 0x02; else ReturnValue_IR &= ~(0x02);
+  if(avg_r > CompareValue_IR) ReturnValue_IR |= 0x04; else ReturnValue_IR &= ~(0x04);
   
   return ReturnValue_IR;
 }
