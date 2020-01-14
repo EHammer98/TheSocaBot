@@ -4,8 +4,8 @@
   #Hardware:           Arduino Mega 2560                      #
   #Eerste opzet:       26-11-2019                             #
   #Auteurs: E. Hammer | N. Vollebregt | M. Remmig | O. Cekem  #
-  #Laatst gewijzigd:   19-12-2019                             #
-  #Versie:             1.0.5                                  #
+  #Laatst gewijzigd:   09-01-2020                             #
+  #Versie:             1.0.6                                  #
   #############################################################
 
   ##WAT JE NIET MAG GEBRUIKEN##
@@ -53,8 +53,8 @@ int IR2 = A7;     //IR rechts
 int IR3 = A8;     //*IR reserve*
 
 //Thresholds
-int thresholdDistance = 10;  //Drempelwaarde om de afstand mee te vergelijken (in CM)#5
-int laserThreshold = 950;   //Drempelwaarde om de laser mee te detecteren #950
+float thresholdDistance = 10.00;  //Drempelwaarde om de afstand mee te vergelijken (in CM)#5
+int laserThreshold = 1000;   //Drempelwaarde om de laser mee te detecteren #950
 int irThreshold = 900;      //Drempelwaarde om de leader (IR) mee te detecteren #900
 int NumReadings = 10;
 
@@ -108,11 +108,12 @@ void loop() {
   digitalWrite(LED3, LOW);
   digitalWrite(LED4, LOW);
   distanceCheck();
+ // delay(500); //DEBUG
 }
 
 void distanceCheck(void) {
   //AFSTAND SENSOR CHECKEN//
-  int distanceCM;
+  float distanceCM;
   digitalWrite(ultraT, HIGH);               //Pulse starten
   delayMicroseconds(10);
   digitalWrite(ultraT, LOW);                //Pulse stoppen
@@ -121,18 +122,18 @@ void distanceCheck(void) {
   distanceCM = distanceCM / 58;             //Calculate to CM
   Serial.println("Distance:");
   Serial.println(distanceCM);
-  //delay(10);
+//  delay(500); //DEBUG
   if (distanceCM == thresholdDistance) {    //SFC 2.0
     ServoStop();
     loop();
   } else if (distanceCM > thresholdDistance) { //SFC 2.1
     checkLDR();
-  } else if (distanceCM < thresholdDistance) { //SFC 2.2
+  } else if(distanceCM < thresholdDistance) { //SFC 2.2
     ServoBackward();
+    Serial.println("REVERSING....");
+   // delay(500); //DEBUG
     loop();
-  } else if (distanceCM < 0) { //SFC 2.2
-    checkLDR();
-  }
+  } 
 }
 
 
@@ -148,6 +149,7 @@ void checkLDR() { //SFC 2.1
   Serial.println(analogRead(LDR3)); //Rechts achter
   Serial.println("LDR4: ");
   Serial.println(analogRead(LDR4)); //Links achter
+//  delay(500); //DEBUG
   //LASER DETECTIE
   if (analogRead(LDR0) >= laserThreshold) {
     laserDetected = 1; //voor
@@ -177,42 +179,34 @@ void laserDrive() { //SFC 5
   digitalWrite(LED4, HIGH);
   switch (laserDetected) {
     case 0: //SFC 5.0
-      loop();
       break;
     case 1:
       Serial.println("VOOR");
       digitalWrite(LED3, HIGH);
       ServoForward(); // Boe-Bot gaat naar voren
-      loop();
       break;
     case 2:
       Serial.println("RECHTSvoor");
       digitalWrite(LED2, HIGH);
       ServoTurnRight(); // Boe-Bot draait naar rechts    
-      loop();
       break;
     case 3:
       Serial.println("RECHTSachter");
       digitalWrite(LED2, HIGH);
       ServoTurnRight(); // Boe-Bot draait naar rechts   
-      loop();
       break;
     case 4:
       Serial.println("LINKSachter");
       digitalWrite(LED1, HIGH);
       ServoTurnLeft(); //Boe-Bot draait naar links    
-      loop();
       break;
     case 5:
       Serial.println("LINKSvoor");
       digitalWrite(LED1, HIGH);
       ServoTurnLeft(); //Boe-Bot draait naar links
-      loop();
-      break;
-    default:
-      loop();
       break;
   }
+  //delay(500); //DEBUG
 }
 
 char checkIR(void) { //SFC 3
@@ -223,6 +217,7 @@ char checkIR(void) { //SFC 3
   Serial.println(analogRead(IR1)); //IR voor uitlezen
   Serial.println("IR2: ");
   Serial.println(analogRead(IR2)); //IR rechts uitlezen
+ // delay(500);
   //IR DETECTIE
  int IRvalue_l[NumReadings];   // een array voor elke IR sensor: (l)inks, (m)idden en (r)echts
   int IRvalue_m[NumReadings];
@@ -263,39 +258,6 @@ char checkIR(void) { //SFC 3
   
   return ReturnValue_IR;
 }
-/*
-void irDrive() { //SFC 4
-  digitalWrite(LED4, HIGH);
-  switch (irDetected) {
-    case 0:
-      Serial.println("GEEN ir, rondje");
-      ServoTurnLeft();
-      loop();
-      break;
-    case 1:
-      Serial.println("LINKS");
-      digitalWrite(LED1, HIGH);
-      ServoSharpLeft();
-      loop();
-      break;
-    case 2:
-      Serial.println("RECHTS");
-      digitalWrite(LED2, HIGH);
-      ServoSharpRight();
-      loop();
-      break;
-    case 3:
-      Serial.println("VOOR");
-      digitalWrite(LED3, HIGH);
-      ServoForward();
-      loop();
-      break;
-    default:
-      loop();
-      break;
-  }
-}
-*/
 void irDrive(char LEDs)
 {
   switch(LEDs)
@@ -305,7 +267,6 @@ void irDrive(char LEDs)
       Serial.println("LINKS");
       digitalWrite(LED1, HIGH);
       ServoSharpLeft();
-      loop();
     }
     break;
   
@@ -314,7 +275,6 @@ void irDrive(char LEDs)
      Serial.println("VOOR");
       digitalWrite(LED3, HIGH);
       ServoForward();
-      loop();
     }
     break;
 
@@ -323,7 +283,6 @@ void irDrive(char LEDs)
       Serial.println("LINKS");
       digitalWrite(LED1, HIGH);
       ServoSharpLeft();
-      loop();
     }
     break;
   
@@ -332,7 +291,6 @@ void irDrive(char LEDs)
       Serial.println("RECHTS");
       digitalWrite(LED2, HIGH);
       ServoSharpRight();
-      loop();
     }
     break;
 
@@ -341,7 +299,6 @@ void irDrive(char LEDs)
       Serial.println("RECHTS");
       digitalWrite(LED2, HIGH);
       ServoSharpRight();
-      loop();
     }
     break;
 
@@ -350,14 +307,13 @@ void irDrive(char LEDs)
       Serial.println("VOOR");
       digitalWrite(LED3, HIGH);
       ServoForward();
-      loop();
     }
     default:
       Serial.println("GEEN ir, rondje");
       ServoTurnLeft();
-      loop();
     break;
   }
+//  delay(500); // DEBUG
 }
 
 // Drive function for giving the servo's the correct time to turn on and off based on their given timers. This allows the vehicle to drive with no limits.
@@ -388,13 +344,13 @@ void Drive (int timeL, int timeR){
     digitalWrite(servoL, HIGH);
     digitalWrite(servoR, HIGH);
     delayMicroseconds(timeL);
-    digitalWrite(servoR, LOW);
-    delayMicroseconds(timeR-timeL);
     digitalWrite(servoL, LOW);
+    delayMicroseconds(timeR-timeL);
+    digitalWrite(servoR, LOW);
   }
   
   // Delay of 20 ms.
-  //delay(20);
+  delay(20);
 }
 
 // Function to stay put.
