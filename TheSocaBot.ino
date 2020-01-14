@@ -5,7 +5,7 @@
   #Eerste opzet:       26-11-2019                             #
   #Auteurs: E. Hammer | N. Vollebregt | M. Remmig | O. Cekem  #
   #Laatst gewijzigd:   09-01-2020                             #
-  #Versie:             1.0.6                                  #
+  #Versie:             1.0.7                                  #
   #############################################################
 
   ##WAT JE NIET MAG GEBRUIKEN##
@@ -55,7 +55,7 @@ int IR3 = A8;     //*IR reserve*
 //Thresholds
 float thresholdDistance = 10.00;  //Drempelwaarde om de afstand mee te vergelijken (in CM)#5
 int laserThreshold = 1000;   //Drempelwaarde om de laser mee te detecteren #950
-int irThreshold = 900;      //Drempelwaarde om de leader (IR) mee te detecteren #900
+int irThreshold = 512;      //Drempelwaarde om de leader (IR) mee te detecteren #512
 int NumReadings = 10;
 
 //Sensoren
@@ -169,7 +169,6 @@ void checkLDR() { //SFC 2.1
   } else {
       laserDetected = 0; //Geen laser
       char IRsensorOutput = checkIR();
-      //IRcase(IRsensorOutput);
       irDrive(IRsensorOutput); //SFC 3
   }
   //delay(500);        // delay in between reads for stability
@@ -219,43 +218,23 @@ char checkIR(void) { //SFC 3
   Serial.println(analogRead(IR2)); //IR rechts uitlezen
  // delay(500);
   //IR DETECTIE
- int IRvalue_l[NumReadings];   // een array voor elke IR sensor: (l)inks, (m)idden en (r)echts
-  int IRvalue_m[NumReadings];
-  int IRvalue_r[NumReadings];
+    int IRvalue_l = 0; // een array voor elke IR sensor: (l)inks, (m)idden en (r)echts
+  int IRvalue_m = 0;
+  int IRvalue_r = 0;
   
-  int tot_l = 0;   // totaal van array
-  int tot_m = 0;
-  int tot_r = 0;
+// Inverteert de waardes van de sensoren zodat detectie = hoge waarde
+  IRvalue_l = 1024 - analogRead(IR0);
+  IRvalue_m = 1024 - analogRead(IR1);
+  IRvalue_r = 1024 - analogRead(IR2);
   
-  int avg_l = 0;   // gemiddelde van array
-  int avg_m = 0;
-  int avg_r = 0;
-  
-  char ReturnValue_IR;   // bitreeks waarvan de 3 LSB veranderen op basis van sensorwaarden
-  
-  int i;  // teller voor vullen van array
-
-  for (i = 0; i < NumReadings; i++)
+ char ReturnValue_IR;
+ 
+if(IRvalue_l > irThreshold || IRvalue_m > irThreshold || IRvalue_r > irThreshold)
   {
-    IRvalue_l[i] = analogRead(IR0);
-    tot_l = tot_l + IRvalue_l[i];
-    IRvalue_m[i] = analogRead(IR1);
-    tot_m = tot_m + IRvalue_m[i];
-    IRvalue_r[i] = analogRead(IR2);
-    tot_r = tot_r + IRvalue_r[i];
-    //delay(5);
+    if(IRvalue_l > irThreshold) ReturnValue_IR |= 0x01; else ReturnValue_IR &= ~(0x01);
+    if(IRvalue_m > irThreshold) ReturnValue_IR |= 0x02; else ReturnValue_IR &= ~(0x02);
+    if(IRvalue_r > irThreshold) ReturnValue_IR |= 0x04; else ReturnValue_IR &= ~(0x04);
   }
-  
-  avg_l = tot_l / NumReadings;
-  avg_m = tot_m / NumReadings;
-  avg_r = tot_r / NumReadings;
-  Serial.println(avg_m);
-  
-  
-  if(avg_l < irThreshold) ReturnValue_IR |= 0x01; else ReturnValue_IR &= ~(0x01);
-  if(avg_m < irThreshold) ReturnValue_IR |= 0x02; else ReturnValue_IR &= ~(0x02);
-  if(avg_r < irThreshold) ReturnValue_IR |= 0x04; else ReturnValue_IR &= ~(0x04);
-  
   return ReturnValue_IR;
 }
 void irDrive(char LEDs)
@@ -350,7 +329,7 @@ void Drive (int timeL, int timeR){
   }
   
   // Delay of 20 ms.
-  delay(20);
+  delay(22);
 }
 
 // Function to stay put.
