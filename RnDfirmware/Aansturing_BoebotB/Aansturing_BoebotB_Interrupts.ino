@@ -2,29 +2,29 @@
 // Don't change this piece of shit.
 // It works as it should.
 
-// 25535 --> 65535 = 20ms
+// 25535 --> 65535 = 20ms   Overflow
 // 25535 --> 28535 = 1.5ms  Stop
 // 25535 --> 28735 = 1.6ms  Forward
 // 25535 --> 28335 = 1.4ms  Backward
 
 // Pins
-const int test_left = PD2; // PB5 = Digital PWM 13
-const int test_right = PD3; // PB4 = Digital PWM 12
+const int test_left = PB5;  // PB5 = Digital PWM 11.
+const int test_right = PB4; // PB4 = Digital PWM 10.
 
 // Counter and compare values
-const uint16_t t1_load = 25535;   // from 25535 to 65535 it should take 20 ms.
+const uint16_t t1_load = 25535;  // from 25535 to 65535 it should take 20 ms.
 const uint16_t Stop = 28535;     // Stop timer for the servo       1.5ms
 const uint16_t Forward = 28735;  // Forward timer for the servo    1.6ms
 const uint16_t Backward = 28335; // Backward timer for the servo   1.4ms
 
 void setup() {
   // Set pin to be output
-  DDRD |= (1 << test_left);
-  DDRD |= (1 << test_right);
+  DDRB |= (1 << test_left);
+  DDRB |= (1 << test_right);
 
   // Start the output pins high.
-  PORTD |= (1 << test_left);
-  PORTD |= (1 << test_right);
+  PORTB |= (1 << test_left);
+  PORTB |= (1 << test_right);
 
   // Reset Timer1 Control Reg A
   TCCR1A = 0;
@@ -70,6 +70,8 @@ ISR(TIMER1_OVF_vect) {
 }
 
 // In the following servo functions only the compare values will be changed depending on what function is called.
+// OCR1A = Left.
+// OCR1B = Right (values inverted).
 // Function to stay put.
 void ServoStop(){
   OCR1A = Stop;
