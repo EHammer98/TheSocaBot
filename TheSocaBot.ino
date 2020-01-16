@@ -56,7 +56,9 @@ int IR3 = A8;     //*IR reserve*
 float thresholdDistance = 10.00;  //Drempelwaarde om de afstand mee te vergelijken (in CM)#5
 int laserThreshold = 1000;   //Drempelwaarde om de laser mee te detecteren #950
 int irThreshold = 512;      //Drempelwaarde om de leader (IR) mee te detecteren #512
-int NumReadings = 10;
+
+//Globale variabelen
+char ReturnValue_IR = 0;
 
 //Sensoren
 int laserDetected = 0;      //0=geen|1=voor|2=rechtsVoor|3=rechtsAchter|4=linksAchter|5=linksVoor
@@ -149,7 +151,7 @@ void checkLDR() { //SFC 2.1
   Serial.println(analogRead(LDR3)); //Rechts achter
   Serial.println("LDR4: ");
   Serial.println(analogRead(LDR4)); //Links achter
-//  delay(500); //DEBUG
+  //delay(500);
   //LASER DETECTIE
   if (analogRead(LDR0) >= laserThreshold) {
     laserDetected = 1; //voor
@@ -216,9 +218,9 @@ char checkIR(void) { //SFC 3
   Serial.println(analogRead(IR1)); //IR voor uitlezen
   Serial.println("IR2: ");
   Serial.println(analogRead(IR2)); //IR rechts uitlezen
- // delay(500);
+  // delay(500);  // DEBUG
   //IR DETECTIE
-    int IRvalue_l = 0; // een array voor elke IR sensor: (l)inks, (m)idden en (r)echts
+  int IRvalue_l = 0; // een array voor elke IR sensor: (l)inks, (m)idden en (r)echts
   int IRvalue_m = 0;
   int IRvalue_r = 0;
   
@@ -226,10 +228,8 @@ char checkIR(void) { //SFC 3
   IRvalue_l = 1024 - analogRead(IR0);
   IRvalue_m = 1024 - analogRead(IR1);
   IRvalue_r = 1024 - analogRead(IR2);
-  
- char ReturnValue_IR;
  
-if(IRvalue_l > irThreshold || IRvalue_m > irThreshold || IRvalue_r > irThreshold)
+  if(IRvalue_l > irThreshold || IRvalue_m > irThreshold || IRvalue_r > irThreshold)
   {
     if(IRvalue_l > irThreshold) ReturnValue_IR |= 0x01; else ReturnValue_IR &= ~(0x01);
     if(IRvalue_m > irThreshold) ReturnValue_IR |= 0x02; else ReturnValue_IR &= ~(0x02);
@@ -251,7 +251,7 @@ void irDrive(char LEDs)
   
     case 0x02:
     {
-     Serial.println("VOOR");
+      Serial.println("VOOR");
       digitalWrite(LED3, HIGH);
       ServoForward();
     }
@@ -287,9 +287,13 @@ void irDrive(char LEDs)
       digitalWrite(LED3, HIGH);
       ServoForward();
     }
+    break;
+    
     default:
+    {
       Serial.println("GEEN ir, rondje");
       ServoTurnLeft();
+    }
     break;
   }
 //  delay(500); // DEBUG
