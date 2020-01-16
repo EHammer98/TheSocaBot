@@ -220,8 +220,7 @@ void checkLDR() { //SFC 2.1
   } else if (analogRead(LDR4) >= laserThreshold) {
     laserDetected = 5;  //Links voor
     laserDrive(); //SFC 5
-  } else {
-      laserDetected = 0; //Geen laser
+  } else if (laserDetected == 0){ //Geen laser
       char IRsensorOutput = checkIR();
       irDrive(IRsensorOutput); //SFC 3
   }
