@@ -4,8 +4,8 @@
   #Hardware:           Arduino Mega 2560                      #
   #Eerste opzet:       26-11-2019                             #
   #Auteurs: E. Hammer | N. Vollebregt | M. Remmig | O. Cekem  #
-  #Laatst gewijzigd:   09-01-2020                             #
-  #Versie:             1.0.7                                  #
+  #Laatst gewijzigd:   16-01-2020                             #
+  #Versie:             1.0.8                                  #
   #############################################################
 
   ##WAT JE NIET MAG GEBRUIKEN##
@@ -38,8 +38,8 @@ int ultraE = 8;   //Echo pin voor de ultrasonic sensor
 //Speaker voor geluid feedback
 int speaker = 9;  //Nog nader te bepalen
 //Pins voor de servo-motoren
-int servoR = 10;  //Servo voor rechts
-int servoL = 11;  //Servo voor links
+const int test_left = PD2; // PB5 = Digital PWM 13
+const int test_right = PD3; // PB4 = Digital PWM 12
 //Pins voor de LDR laser detectie sensoren
 int LDR0 = A0;    //LDR voor
 int LDR1 = A1;    //LDR rechter hoek voor
@@ -57,6 +57,15 @@ float thresholdDistance = 10.00;  //Drempelwaarde om de afstand mee te vergelijk
 int laserThreshold = 1000;   //Drempelwaarde om de laser mee te detecteren #950
 int irThreshold = 512;      //Drempelwaarde om de leader (IR) mee te detecteren #512
 int NumReadings = 10;
+
+//Globale variabelen
+char ReturnValue_IR = 0;
+
+// Counter and compare values
+const uint16_t t1_load = 25535;   // from 25535 to 65535 it should take 20 ms.
+const uint16_t Stop = 28535;     // Stop timer for the servo       1.5ms
+const uint16_t Forward = 28735;  // Forward timer for the servo    1.6ms
+const uint16_t Backward = 28335; // Backward timer for the servo   1.4ms
 
 //Sensoren
 int laserDetected = 0;      //0=geen|1=voor|2=rechtsVoor|3=rechtsAchter|4=linksAchter|5=linksVoor
@@ -88,8 +97,6 @@ void setup() {
   pinMode(ultraT, OUTPUT);    //Defineer ultraT als een uitgang
   pinMode(ultraE, INPUT);     //Defineer ultraE als een ingang
   pinMode(speaker, OUTPUT);   //Defineer speaker als een uitgang
-  pinMode(servoR, OUTPUT);    //Defineer servoR als een uitgang
-  pinMode(servoL, OUTPUT);    //Defineer servoL als een uitgang
   pinMode(LDR0, INPUT);       //Defineer LDR0 als een uitgang
   pinMode(LDR1, INPUT);       //Defineer LDR1 als een uitgang
   pinMode(LDR2, INPUT);       //Defineer LDR2 als een uitgang
@@ -99,6 +106,36 @@ void setup() {
   pinMode(IR1, INPUT);        //Defineer IR2 als een uitgang
   pinMode(IR2, INPUT);        //Defineer IR3 als een uitgang
   pinMode(IR3, INPUT);        //Defineer IR4 als een uitgang
+
+  // Set pin to be output
+  DDRD |= (1 << test_left);
+  DDRD |= (1 << test_right);
+
+  // Start the output pins high.
+  PORTD |= (1 << test_left);
+  PORTD |= (1 << test_right);
+
+  // Reset Timer1 Control Reg A
+  TCCR1A = 0;
+  TCCR1B = 0;
+
+  // Set to prescaler of 8
+  TCCR1B &= ~(1 << CS12);
+  TCCR1B |= (1 << CS11);
+  TCCR1B &= ~(1 << CS10);
+
+  // Reset Timer1 and set compare value
+  TCNT1 = t1_load;
+  OCR1A = Stop;
+  OCR1B = Stop;
+
+  // Enable Timer1 compare interrupt
+  TIMSK1 = (1 << OCIE1A); // Enable Compare Match A
+  TIMSK1 |= (1 << OCIE1B); // Enable Compare Match B
+  TIMSK1 |= (1 << TOIE1); // Enable Overflow
+
+  // Enable global interrupts
+  sei();
 }
 
 void loop() {
@@ -109,6 +146,22 @@ void loop() {
   digitalWrite(LED4, LOW);
   distanceCheck();
  // delay(500); //DEBUG
+}
+
+// When timer1 reaches COMPA (OCR1A value), put test_left low (left servo).
+ISR(TIMER1_COMPA_vect) {
+  PORTD &= ~(1 << test_left); // Set test_left low.
+}
+
+// When timer1 reaches COMPB (OCR1B value), put test_right low (right servo).
+ISR(TIMER1_COMPB_vect) {
+  PORTD &= ~(1 << test_right); // Set test_right low.
+}
+
+// When timer1 reaches OVERFLOW, put both test left and right high, also put the timer correct.
+ISR(TIMER1_OVF_vect) {
+  PORTD ^= ( (1 << test_left) | (1 << test_right) ); // Set test_left and test_right high.
+  TCNT1 = t1_load; // Reset timer to the right time.
 }
 
 void distanceCheck(void) {
@@ -180,29 +233,39 @@ void laserDrive() { //SFC 5
     case 0: //SFC 5.0
       break;
     case 1:
+    {
       Serial.println("VOOR");
       digitalWrite(LED3, HIGH);
       ServoForward(); // Boe-Bot gaat naar voren
+    }
       break;
     case 2:
+    {
       Serial.println("RECHTSvoor");
       digitalWrite(LED2, HIGH);
       ServoTurnRight(); // Boe-Bot draait naar rechts    
+    }
       break;
     case 3:
+    {
       Serial.println("RECHTSachter");
       digitalWrite(LED2, HIGH);
       ServoTurnRight(); // Boe-Bot draait naar rechts   
+    }
       break;
     case 4:
+    {
       Serial.println("LINKSachter");
       digitalWrite(LED1, HIGH);
-      ServoTurnLeft(); //Boe-Bot draait naar links    
+      ServoTurnLeft(); //Boe-Bot draait naar links
+    }    
       break;
     case 5:
+    {
       Serial.println("LINKSvoor");
       digitalWrite(LED1, HIGH);
       ServoTurnLeft(); //Boe-Bot draait naar links
+    }
       break;
   }
   //delay(500); //DEBUG
@@ -287,82 +350,57 @@ void irDrive(char LEDs)
       digitalWrite(LED3, HIGH);
       ServoForward();
     }
+    break;
     default:
+    {
       Serial.println("GEEN ir, rondje");
       ServoTurnLeft();
+    }
     break;
   }
 //  delay(500); // DEBUG
 }
 
-// Drive function for giving the servo's the correct time to turn on and off based on their given timers. This allows the vehicle to drive with no limits.
-// The values given should be between 1000-2000 in order to work properly.
-void Drive (int timeL, int timeR){
-  
-  // If the time is equal then there is no need to do timeL - timeR.
-  if(timeL == timeR){
-    digitalWrite(servoL, HIGH);
-    digitalWrite(servoR, HIGH);
-    delayMicroseconds(timeL);
-    digitalWrite(servoR, LOW);
-    digitalWrite(servoL, LOW);
-  }
-  
-  // If timeL is greater than timeR then turn servoR low faster.
-  else if(timeL > timeR){
-    digitalWrite(servoL, HIGH);
-    digitalWrite(servoR, HIGH);
-    delayMicroseconds(timeR);
-    digitalWrite(servoR, LOW);
-    delayMicroseconds(timeL-timeR);
-    digitalWrite(servoL, LOW);
-  }
 
-  // If timeR is greater than timeR then turn servoL low faster.
-  else if(timeL < timeR){
-    digitalWrite(servoL, HIGH);
-    digitalWrite(servoR, HIGH);
-    delayMicroseconds(timeL);
-    digitalWrite(servoL, LOW);
-    delayMicroseconds(timeR-timeL);
-    digitalWrite(servoR, LOW);
-  }
-  
-  // Delay of 20 ms.
-  delay(22);
-}
-
+// In the following servo functions only the compare values will be changed depending on what function is called.
 // Function to stay put.
 void ServoStop(){
-  Drive (1500, 1500);
+  OCR1A = Stop;
+  OCR1B = Stop;
 }
 
 // Function to drive forward.
 void ServoForward(){
-  Drive (1600, 1400);
+  OCR1A = Forward;
+  OCR1B = Backward;
 }
 
 // Function to turn left.
 void ServoTurnLeft(){
-  Drive (1500, 1400);
+  OCR1A = Stop;
+  OCR1B = Backward;
 }
 
 // Function to turn right.
 void ServoTurnRight(){
-  Drive (1600, 1500);
+  OCR1A = Forward;
+  OCR1B = Stop;
 }
 
 // Function to turn sharp left.
 void ServoSharpLeft(){
-  Drive (1600, 1600);
+  OCR1A = Forward;
+  OCR1B = Backward;
 }
 
 // Function to turn sharp right.
 void ServoSharpRight(){
-  Drive (1400, 1400);
+  OCR1A = Forward;
+  OCR1B = Backward;
 }
 
 // Function to drive backward.
 void ServoBackward(){
-  Drive (1400, 1600);
+  OCR1A = Backward;
+  OCR1B = Forward;
 }
