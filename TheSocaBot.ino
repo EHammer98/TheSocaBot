@@ -5,7 +5,7 @@
   #Eerste opzet:       26-11-2019                             #
   #Auteurs: E. Hammer | N. Vollebregt | M. Remmig | O. Cekem  #
   #Laatst gewijzigd:   16-01-2020                             #
-  #Versie:             1.0.9                                  #
+  #Versie:             1.1.0                                  #
   #############################################################
 
   ##WAT JE NIET MAG GEBRUIKEN##
@@ -53,8 +53,8 @@ int IR2 = A7;     //IR rechts
 int IR3 = A8;     //*IR reserve*
 
 //Thresholds
-float thresholdDistance = 10.00;  //Drempelwaarde om de afstand mee te vergelijken (in CM)#5
-int laserThreshold = 900;   //Drempelwaarde om de laser mee te detecteren #950
+float thresholdDistance = 10.00;  //Drempelwaarde om de afstand mee te vergelijken (in CM)#10
+int laserThreshold = 925;   //Drempelwaarde om de laser mee te detecteren #925
 int irThreshold = 512;      //Drempelwaarde om de leader (IR) mee te detecteren #512
 
 //Globale variabelen
