@@ -5,7 +5,7 @@
   #Eerste opzet:       26-11-2019                             #
   #Auteurs: E. Hammer | N. Vollebregt | M. Remmig | O. Cekem  #
   #Laatst gewijzigd:   16-01-2020                             #
-  #Versie:             1.0.8                                  #
+  #Versie:             1.0.9                                  #
   #############################################################
 
   ##WAT JE NIET MAG GEBRUIKEN##
@@ -29,8 +29,8 @@
 //LED pin's voor visuele feedback
 int LED0 = 2;     //Afstand = gelijk aan threshold waarde
 int LED1 = 3;     //IR LED('s)/LDR('s) links nemen iets waar
-int LED2 = 4;     //IR LED('s)/LDR('s) rechts nemen iets waar
-int LED3 = 5;     //IR LED('s)/LDR('s) alle of alleen voor iets waarnemen
+int LED2 = 5;     //IR LED('s)/LDR('s) alle of alleen voor iets waarnemen
+int LED3 = 4;     //IR LED('s)/LDR('s) rechts nemen iets waar
 int LED4 = 6;     //Laser wordt gedetecteerd
 //Pins voor de ultrasonic afstand sensor
 int ultraT = 7;   //Trigger pin voor de ultrasonic sensor
@@ -38,8 +38,8 @@ int ultraE = 8;   //Echo pin voor de ultrasonic sensor
 //Speaker voor geluid feedback
 int speaker = 9;  //Nog nader te bepalen
 //Pins voor de servo-motoren
-const int test_left = PD2; // PB2 = Digital PWM 11
-const int test_right = PD3; // PB3 = Digital PWM 10
+const int test_left = PB5; // PB5 = Digital PWM 11
+const int test_right = PB4; // PB4 = Digital PWM 10
 //Pins voor de LDR laser detectie sensoren
 int LDR0 = A0;    //LDR voor
 int LDR1 = A1;    //LDR rechter hoek voor
@@ -54,7 +54,7 @@ int IR3 = A8;     //*IR reserve*
 
 //Thresholds
 float thresholdDistance = 10.00;  //Drempelwaarde om de afstand mee te vergelijken (in CM)#5
-int laserThreshold = 1000;   //Drempelwaarde om de laser mee te detecteren #950
+int laserThreshold = 900;   //Drempelwaarde om de laser mee te detecteren #950
 int irThreshold = 512;      //Drempelwaarde om de leader (IR) mee te detecteren #512
 
 //Globale variabelen
@@ -107,12 +107,12 @@ void setup() {
   pinMode(IR3, INPUT);        //Defineer IR4 als een uitgang
 
   // Set pin to be output
-  DDRD |= (1 << test_left);
-  DDRD |= (1 << test_right);
+  DDRB |= (1 << test_left);
+  DDRB |= (1 << test_right);
 
   // Start the output pins high.
-  PORTD |= (1 << test_left);
-  PORTD |= (1 << test_right);
+  PORTB |= (1 << test_left);
+  PORTB |= (1 << test_right);
 
   // Reset Timer1 Control Reg A
   TCCR1A = 0;
@@ -145,22 +145,22 @@ void loop() {
   digitalWrite(LED3, LOW);
   digitalWrite(LED4, LOW);
   distanceCheck();
- // delay(500); //DEBUG
+ //delay(500); //DEBUG
 }
 
 // When timer1 reaches COMPA (OCR1A value), put test_left low (left servo).
 ISR(TIMER1_COMPA_vect) {
-  PORTD &= ~(1 << test_left); // Set test_left low.
+  PORTB &= ~(1 << test_left); // Set test_left low.
 }
 
 // When timer1 reaches COMPB (OCR1B value), put test_right low (right servo).
 ISR(TIMER1_COMPB_vect) {
-  PORTD &= ~(1 << test_right); // Set test_right low.
+  PORTB &= ~(1 << test_right); // Set test_right low.
 }
 
 // When timer1 reaches OVERFLOW, put both test left and right high, also put the timer correct.
 ISR(TIMER1_OVF_vect) {
-  PORTD ^= ( (1 << test_left) | (1 << test_right) ); // Set test_left and test_right high.
+  PORTB ^= ( (1 << test_left) | (1 << test_right) ); // Set test_left and test_right high.
   TCNT1 = t1_load; // Reset timer to the right time.
 }
 
@@ -185,7 +185,7 @@ void distanceCheck(void) {
   } else if(distanceCM < thresholdDistance) { //SFC 2.2
     ServoBackward();
     Serial.println("REVERSING....");
-   // delay(500); //DEBUG
+    //delay(500); //DEBUG
     loop();
   } 
 }
@@ -203,7 +203,7 @@ void checkLDR() { //SFC 2.1
   Serial.println(analogRead(LDR3)); //Rechts achter
   Serial.println("LDR4: ");
   Serial.println(analogRead(LDR4)); //Links achter
-  //delay(500);
+  //delay(1500);
   //LASER DETECTIE
   if (analogRead(LDR0) >= laserThreshold) {
     laserDetected = 1; //voor
@@ -241,22 +241,22 @@ void laserDrive() { //SFC 5
     case 2:
       Serial.println("RECHTSvoor");
       digitalWrite(LED2, HIGH);
-      ServoTurnRight(); // Boe-Bot draait naar rechts    
+      ServoSharpRight(); // Boe-Bot draait naar rechts    
       break;
     case 3:
       Serial.println("RECHTSachter");
       digitalWrite(LED2, HIGH);
-      ServoTurnRight(); // Boe-Bot draait naar rechts   
+      ServoSharpRight(); // Boe-Bot draait naar rechts   
       break;
     case 4:
       Serial.println("LINKSachter");
       digitalWrite(LED1, HIGH);
-      ServoTurnLeft(); //Boe-Bot draait naar links    
+      ServoSharpLeft(); //Boe-Bot draait naar links    
       break;
     case 5:
       Serial.println("LINKSvoor");
       digitalWrite(LED1, HIGH);
-      ServoTurnLeft(); //Boe-Bot draait naar links
+      ServoSharpLeft(); //Boe-Bot draait naar links
       break;
   }
   //delay(500); //DEBUG
@@ -294,61 +294,46 @@ void irDrive(char LEDs)
   switch(LEDs)
   {
     case 0x01:
-    {
       Serial.println("LINKS");
       digitalWrite(LED1, HIGH);
       ServoSharpLeft();
-    }
     break;
   
     case 0x02:
-    {
       Serial.println("VOOR");
       digitalWrite(LED3, HIGH);
       ServoForward();
-    }
     break;
 
     case 0x03:
-    {
       Serial.println("LINKS");
       digitalWrite(LED1, HIGH);
       ServoSharpLeft();
-    }
     break;
   
     case 0x04:
-    {
       Serial.println("RECHTS");
       digitalWrite(LED2, HIGH);
       ServoSharpRight();
-    }
     break;
 
     case 0x06:
-    {
       Serial.println("RECHTS");
       digitalWrite(LED2, HIGH);
       ServoSharpRight();
-    }
     break;
 
     case 0x07:
-    {
       Serial.println("VOOR");
       digitalWrite(LED3, HIGH);
       ServoForward();
-    }
     break;
     
     default:
-    {
       Serial.println("GEEN ir, rondje");
-      ServoTurnLeft();
-    }
-    break;
+      ServoSharpLeft();
   }
-//  delay(500); // DEBUG
+  //delay(500); // DEBUG
 }
 
 // Function to stay put.
@@ -377,14 +362,14 @@ void ServoTurnRight(){
 
 // Function to turn sharp left.
 void ServoSharpLeft(){
-  OCR1A = Forward;
+  OCR1A = Backward;
   OCR1B = Backward;
 }
 
 // Function to turn sharp right.
 void ServoSharpRight(){
   OCR1A = Forward;
-  OCR1B = Backward;
+  OCR1B = Forward;
 }
 
 // Function to drive backward.
