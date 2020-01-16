@@ -177,12 +177,12 @@ void distanceCheck(void) {
   Serial.println("Distance:");
   Serial.println(distanceCM);
 //  delay(500); //DEBUG
-  if (distanceCM == thresholdDistance) {    //SFC 2.0
+  if (distanceCM >= 10 && distanceCM <=12) {    //SFC 2.0
     ServoStop();
     loop();
-  } else if (distanceCM > thresholdDistance) { //SFC 2.1
+  } else if (distanceCM > 12) { //SFC 2.1
     checkLDR();
-  } else if(distanceCM < thresholdDistance) { //SFC 2.2
+  } else if(distanceCM < 10) { //SFC 2.2
     ServoBackward();
     Serial.println("REVERSING....");
     //delay(500); //DEBUG
