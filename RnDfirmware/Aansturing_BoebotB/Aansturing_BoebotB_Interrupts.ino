@@ -98,14 +98,14 @@ void ServoTurnRight(){
 
 // Function to turn sharp left.
 void ServoSharpLeft(){
-  OCR1A = Forward;
+  OCR1A = Backward;
   OCR1B = Backward;
 }
 
 // Function to turn sharp right.
 void ServoSharpRight(){
   OCR1A = Forward;
-  OCR1B = Backward;
+  OCR1B = Forward;
 }
 
 // Function to drive backward.
