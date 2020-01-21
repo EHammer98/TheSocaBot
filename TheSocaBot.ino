@@ -4,8 +4,8 @@
   #Hardware:           Arduino Mega 2560                      #
   #Eerste opzet:       26-11-2019                             #
   #Auteurs: E. Hammer | N. Vollebregt | M. Remmig | O. Cekem  #
-  #Laatst gewijzigd:   16-01-2020                             #
-  #Versie:             1.1.0                                  #
+  #Laatst gewijzigd:   21-01-2020                             #
+  #Versie:             1.1.1                                  #
   #############################################################
 
   ##WAT JE NIET MAG GEBRUIKEN##
@@ -54,8 +54,8 @@ int IR3 = A8;     //*IR reserve*
 
 //Thresholds
 float thresholdDistance = 10.00;  //Drempelwaarde om de afstand mee te vergelijken (in CM)#10
-int laserThreshold = 925;   //Drempelwaarde om de laser mee te detecteren #925
-int irThreshold = 512;      //Drempelwaarde om de leader (IR) mee te detecteren #512
+int laserThreshold = 710;   //Drempelwaarde om de laser mee te detecteren #925
+int irThreshold = 650;      //Drempelwaarde om de leader (IR) mee te detecteren #650
 
 //Globale variabelen
 char ReturnValue_IR = 0;
@@ -139,11 +139,6 @@ void setup() {
 }
 
 void loop() {
-  digitalWrite(LED0, LOW);
-  digitalWrite(LED1, LOW);
-  digitalWrite(LED2, LOW);
-  digitalWrite(LED3, LOW);
-  digitalWrite(LED4, LOW);
   distanceCheck();
  //delay(500); //DEBUG
 }
@@ -176,7 +171,7 @@ void distanceCheck(void) {
   distanceCM = distanceCM / 58;             //Calculate to CM
   Serial.println("Distance:");
   Serial.println(distanceCM);
-//  delay(500); //DEBUG
+  //delay(500); //DEBUG
   if (distanceCM >= 10 && distanceCM <=12) {    //SFC 2.0
     ServoStop();
     loop();
@@ -229,6 +224,10 @@ void checkLDR() { //SFC 2.1
 
 void laserDrive() { //SFC 5
   digitalWrite(LED4, HIGH);
+  digitalWrite(LED0, LOW);
+   digitalWrite(LED1, LOW);
+  digitalWrite(LED2, LOW);
+  digitalWrite(LED3, LOW);
   switch (laserDetected) {
     case 0: //SFC 5.0
       break;
@@ -263,12 +262,14 @@ void laserDrive() { //SFC 5
 
 char checkIR(void) { //SFC 3
   //DEBUG
+  /*
   Serial.println("IR0: ");
   Serial.println(analogRead(IR0)); //IR links uitlezen
   Serial.println("IR1: ");
   Serial.println(analogRead(IR1)); //IR voor uitlezen
   Serial.println("IR2: ");
   Serial.println(analogRead(IR2)); //IR rechts uitlezen
+  */
   // delay(500);  // DEBUG
   //IR DETECTIE
   int IRvalue_l = 0; // een array voor elke IR sensor: (l)inks, (m)idden en (r)echts
@@ -290,6 +291,11 @@ char checkIR(void) { //SFC 3
 }
 void irDrive(char LEDs)
 {
+  digitalWrite(LED4, LOW);
+  digitalWrite(LED0, HIGH);
+  digitalWrite(LED1, LOW);
+  digitalWrite(LED2, LOW);
+  digitalWrite(LED3, LOW);
   switch(LEDs)
   {
     case 0x01:
