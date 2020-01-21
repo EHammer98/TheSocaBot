@@ -307,7 +307,7 @@ void irDrive(char LEDs)
     case 0x03:
       Serial.println("LINKS");
       digitalWrite(LED1, HIGH);
-      ServoSharpLeft();
+      ServoTurnLeft();
     break;
   
     case 0x04:
@@ -319,7 +319,7 @@ void irDrive(char LEDs)
     case 0x06:
       Serial.println("RECHTS");
       digitalWrite(LED2, HIGH);
-      ServoSharpRight();
+      ServoTurnRight();
     break;
 
     case 0x07:
