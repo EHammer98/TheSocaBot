@@ -4,8 +4,8 @@
   #Hardware:           Arduino Mega 2560                      #
   #Eerste opzet:       26-11-2019                             #
   #Auteurs: E. Hammer | N. Vollebregt | M. Remmig | O. Cekem  #
-  #Laatst gewijzigd:   21-01-2020                             #
-  #Versie:             1.1.1                                  #
+  #Laatst gewijzigd:   23-01-2020                             #
+  #Versie:             1.1.2                                  #
   #############################################################
 
   ##WAT JE NIET MAG GEBRUIKEN##
@@ -46,15 +46,16 @@ int LDR1 = A1;    //LDR rechter hoek voor
 int LDR2 = A2;    //LDR rechter hoek achter
 int LDR3 = A3;    //LDR linker hoek achter
 int LDR4 = A4;    //LDR linker hoek voor
+int LDR5 = A8;    //LDR voor algemeen opvangen
 //Pins voor de IR LED's om de leader te detecteren
 int IR0 = A5;     //IR links
 int IR1 = A6;     //IR midden
 int IR2 = A7;     //IR rechts
-int IR3 = A8;     //*IR reserve*
 
 //Thresholds
 float thresholdDistance = 10.00;  //Drempelwaarde om de afstand mee te vergelijken (in CM)#10
-int laserThreshold = 710;   //Drempelwaarde om de laser mee te detecteren #925
+int laserThreshold;   //Drempelwaarde om de laser mee te detecteren #925 - #710
+int algemeenLaserThreshold; //Drempel waarde om een laser algem,een te detecteren #700 - #
 int irThreshold = 650;      //Drempelwaarde om de leader (IR) mee te detecteren #650
 
 //Globale variabelen
@@ -101,11 +102,13 @@ void setup() {
   pinMode(LDR2, INPUT);       //Defineer LDR2 als een uitgang
   pinMode(LDR3, INPUT);       //Defineer LDR3 als een uitgang
   pinMode(LDR4, INPUT);       //Defineer LDR4 als een uitgang
+  pinMode(LDR5, INPUT);       //Defineer LDR4 als een uitgang
   pinMode(IR0, INPUT);        //Defineer IR1 als een uitgang
   pinMode(IR1, INPUT);        //Defineer IR2 als een uitgang
   pinMode(IR2, INPUT);        //Defineer IR3 als een uitgang
-  pinMode(IR3, INPUT);        //Defineer IR4 als een uitgang
 
+
+  
   // Set pin to be output
   DDRB |= (1 << test_left);
   DDRB |= (1 << test_right);
@@ -139,6 +142,8 @@ void setup() {
 }
 
 void loop() {
+  laserThreshold = ((analogRead(LDR0)+analogRead(LDR1)+analogRead(LDR2)+analogRead(LDR3)+analogRead(LDR4))/5) + 150; //Adaptive threshold waarde voor de richtingen
+algemeenLaserThreshold = (analogRead(LDR5)) + 50; //Adaptive threshold waarde voor algemeen
   distanceCheck();
  //delay(500); //DEBUG
 }
@@ -188,6 +193,7 @@ void distanceCheck(void) {
 
 void checkLDR() { //SFC 2.1
   //DEBUG
+  
   Serial.println("LDR0: ");
   Serial.println(analogRead(LDR0)); //Links voor
   Serial.println("LDR1: ");
@@ -198,6 +204,8 @@ void checkLDR() { //SFC 2.1
   Serial.println(analogRead(LDR3)); //Rechts achter
   Serial.println("LDR4: ");
   Serial.println(analogRead(LDR4)); //Links achter
+  Serial.println("LDR5: ");
+  Serial.println(analogRead(LDR5)); //Algemeen
   //delay(1500);
   //LASER DETECTIE
   if (analogRead(LDR0) >= laserThreshold) {
@@ -214,6 +222,9 @@ void checkLDR() { //SFC 2.1
     laserDrive(); //SFC 5
   } else if (analogRead(LDR4) >= laserThreshold) {
     laserDetected = 5;  //Links voor
+    laserDrive(); //SFC 5
+  } else if (analogRead(LDR5) >= algemeenLaserThreshold && analogRead(LDR0) <= laserThreshold && analogRead(LDR1) <= laserThreshold && analogRead(LDR2) <= laserThreshold && analogRead(LDR3) <= laserThreshold && analogRead(LDR4) <= laserThreshold) {
+    laserDetected = 6;  //Algemeen
     laserDrive(); //SFC 5
   } else if (laserDetected == 0){ //Geen laser
       char IRsensorOutput = checkIR();
@@ -256,6 +267,13 @@ void laserDrive() { //SFC 5
       digitalWrite(LED1, HIGH);
       ServoSharpLeft(); //Boe-Bot draait naar links
       break;
+    case 6:
+      Serial.println("ALGEMEEN");
+      digitalWrite(LED1, HIGH);
+      digitalWrite(LED2, HIGH);
+      digitalWrite(LED3, HIGH);
+      ServoTurnLeft(); //Boe-Bot draait naar links
+      break;
   }
   //delay(500); //DEBUG
 }
@@ -270,7 +288,7 @@ char checkIR(void) { //SFC 3
   Serial.println("IR2: ");
   Serial.println(analogRead(IR2)); //IR rechts uitlezen
   */
-  // delay(500);  // DEBUG
+   delay(1500);  // DEBUG
   //IR DETECTIE
   int IRvalue_l = 0; // een array voor elke IR sensor: (l)inks, (m)idden en (r)echts
   int IRvalue_m = 0;
