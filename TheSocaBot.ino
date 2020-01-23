@@ -5,7 +5,7 @@
   #Eerste opzet:       26-11-2019                             #
   #Auteurs: E. Hammer | N. Vollebregt | M. Remmig | O. Cekem  #
   #Laatst gewijzigd:   23-01-2020                             #
-  #Versie:             1.1.2                                  #
+  #Versie:             1.1.3                                  #
   #############################################################
 
   ##WAT JE NIET MAG GEBRUIKEN##
@@ -86,6 +86,10 @@ void ServoSharpLeft();    // Prototype for the ServoSharpLeft function.
 void ServoSharpRight();   // Prototype for the ServoSharpRight function.
 void ServoBackward();     // Prototype for the ServoBackward function.
 
+//Speaker
+int distanceSpeaker = 30; // Random value for testing purposes, pretending to have distance.
+int frequency; // Frequency variable.
+
 //Initializeren van de firmware
 void setup() {
   Serial.begin(9600); //Start een serieële verbinding
@@ -142,7 +146,7 @@ void setup() {
 }
 
 void loop() {
-  laserThreshold = ((analogRead(LDR0)+analogRead(LDR1)+analogRead(LDR2)+analogRead(LDR3)+analogRead(LDR4))/5) + 150; //Adaptive threshold waarde voor de richtingen
+  laserThreshold = ((analogRead(LDR0)+analogRead(LDR1)+analogRead(LDR2)+analogRead(LDR3)+analogRead(LDR4))/5) + 120; //Adaptive threshold waarde voor de richtingen
 algemeenLaserThreshold = (analogRead(LDR5)) + 50; //Adaptive threshold waarde voor algemeen
   distanceCheck();
  //delay(500); //DEBUG
@@ -166,6 +170,8 @@ ISR(TIMER1_OVF_vect) {
 
 
 void distanceCheck(void) {
+  // Delay for testing purposes.
+  delay(100);
   //AFSTAND SENSOR CHECKEN//
   float distanceCM;
   digitalWrite(ultraT, HIGH);               //Pulse starten
@@ -179,17 +185,21 @@ void distanceCheck(void) {
   //delay(500); //DEBUG
   if (distanceCM >= 10 && distanceCM <=12) {    //SFC 2.0
     ServoStop();
+    frequency = 1350; // High tone when standing still.
+    tone(speaker, frequency);
     loop();
   } else if (distanceCM > 12) { //SFC 2.1
+     noTone(speaker);
     checkLDR();
   } else if(distanceCM < 10) { //SFC 2.2
     ServoBackward();
     Serial.println("REVERSING....");
+    frequency = 700; // Lower tone when going backward.
+    tone(speaker, frequency);
     //delay(500); //DEBUG
     loop();
   } 
 }
-
 
 void checkLDR() { //SFC 2.1
   //DEBUG
