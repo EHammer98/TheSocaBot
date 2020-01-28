@@ -205,15 +205,15 @@ void checkLDR() { //SFC 2.1
   //DEBUG
   
   Serial.println("LDR0: ");
-  Serial.println(analogRead(LDR0)); //Links voor
+  Serial.println(analogRead(LDR0)); //Voor
   Serial.println("LDR1: ");
-  Serial.println(analogRead(LDR1)); //Voor
+  Serial.println(analogRead(LDR1)); //Rechts voor
   Serial.println("LDR2: ");
-  Serial.println(analogRead(LDR2)); //Rechts voor
+  Serial.println(analogRead(LDR2)); //Rechts achter
   Serial.println("LDR3: ");
-  Serial.println(analogRead(LDR3)); //Rechts achter
+  Serial.println(analogRead(LDR3)); //Links achter
   Serial.println("LDR4: ");
-  Serial.println(analogRead(LDR4)); //Links achter
+  Serial.println(analogRead(LDR4)); //Links voor
   Serial.println("LDR5: ");
   Serial.println(analogRead(LDR5)); //Algemeen
   //delay(1500);
