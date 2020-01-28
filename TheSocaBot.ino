@@ -56,7 +56,7 @@ int IR2 = A7;     //IR rechts
 float thresholdDistance = 10.00;  //Drempelwaarde om de afstand mee te vergelijken (in CM)#10
 int laserThreshold;   //Drempelwaarde om de laser mee te detecteren #925 - #710
 int algemeenLaserThreshold; //Drempel waarde om een laser algem,een te detecteren #700 - #
-int irThreshold = 650;      //Drempelwaarde om de leader (IR) mee te detecteren #650
+int irThreshold = 800;      //Drempelwaarde om de leader (IR) mee te detecteren #650
 
 //Globale variabelen
 char ReturnValue_IR = 0;
@@ -64,8 +64,8 @@ char ReturnValue_IR = 0;
 // Counter and compare values
 const uint16_t t1_load = 25535;   // from 25535 to 65535 it should take 20 ms.
 const uint16_t Stop = 28535;     // Stop timer for the servo       1.5ms
-const uint16_t Forward = 28735;  // Forward timer for the servo    1.6ms
-const uint16_t Backward = 28335; // Backward timer for the servo   1.4ms
+const uint16_t Forward = 28935;  // Forward timer for the servo    1.7ms
+const uint16_t Backward = 28135; // Backward timer for the servo   1.3ms
 
 //Sensoren
 int laserDetected = 0;      //0=geen|1=voor|2=rechtsVoor|3=rechtsAchter|4=linksAchter|5=linksVoor
@@ -92,7 +92,7 @@ int frequency; // Frequency variable.
 
 //Initializeren van de firmware
 void setup() {
-  Serial.begin(9600); //Start een serieële verbinding
+  //Serial.begin(9600); //Start een serieële verbinding
   pinMode(LED0, OUTPUT);      //Defineer LED0 als een uitgang
   pinMode(LED1, OUTPUT);      //Defineer LED1 als een uitgang
   pinMode(LED2, OUTPUT);      //Defineer LED2 als een uitgang
@@ -146,8 +146,8 @@ void setup() {
 }
 
 void loop() {
-  laserThreshold = ((analogRead(LDR0)+analogRead(LDR1)+analogRead(LDR2)+analogRead(LDR3)+analogRead(LDR4))/5) + 120; //Adaptive threshold waarde voor de richtingen
-algemeenLaserThreshold = (analogRead(LDR5)) + 50; //Adaptive threshold waarde voor algemeen
+  laserThreshold = ((analogRead(LDR0)+analogRead(LDR1)+analogRead(LDR2)+analogRead(LDR3)+analogRead(LDR4))/5) + 150; //Adaptive threshold waarde voor de richtingen
+algemeenLaserThreshold = (analogRead(LDR5)) + 75; //Adaptive threshold waarde voor algemeen
   distanceCheck();
  //delay(500); //DEBUG
 }
@@ -171,7 +171,7 @@ ISR(TIMER1_OVF_vect) {
 
 void distanceCheck(void) {
   // Delay for testing purposes.
-  delay(100);
+  //delay(100);
   //AFSTAND SENSOR CHECKEN//
   float distanceCM;
   digitalWrite(ultraT, HIGH);               //Pulse starten
@@ -183,39 +183,39 @@ void distanceCheck(void) {
   Serial.println("Distance:");
   Serial.println(distanceCM);
   //delay(500); //DEBUG
-  if (distanceCM >= 10 && distanceCM <=12) {    //SFC 2.0
+  if (distanceCM >= 12 && distanceCM <=15) {    //SFC 2.0
     ServoStop();
     frequency = 1350; // High tone when standing still.
     tone(speaker, frequency);
-    loop();
-  } else if (distanceCM > 12) { //SFC 2.1
+  } else if (distanceCM > 15) { //SFC 2.1
      noTone(speaker);
-    checkLDR();
-  } else if(distanceCM < 10) { //SFC 2.2
+     char IRsensorOutput = checkIR();
+     irDrive(IRsensorOutput);
+    //checkLDR();
+  } else if(distanceCM < 12) { //SFC 2.2
     ServoBackward();
-    Serial.println("REVERSING....");
+    //Serial.println("REVERSING....");
     frequency = 700; // Lower tone when going backward.
     tone(speaker, frequency);
     //delay(500); //DEBUG
-    loop();
   } 
 }
 
 void checkLDR() { //SFC 2.1
   //DEBUG
   
-  Serial.println("LDR0: ");
-  Serial.println(analogRead(LDR0)); //Voor
-  Serial.println("LDR1: ");
-  Serial.println(analogRead(LDR1)); //Rechts voor
-  Serial.println("LDR2: ");
-  Serial.println(analogRead(LDR2)); //Rechts achter
-  Serial.println("LDR3: ");
-  Serial.println(analogRead(LDR3)); //Links achter
-  Serial.println("LDR4: ");
-  Serial.println(analogRead(LDR4)); //Links voor
-  Serial.println("LDR5: ");
-  Serial.println(analogRead(LDR5)); //Algemeen
+//  Serial.println("LDR0: ");
+//  Serial.println(analogRead(LDR0)); //Voor
+//  Serial.println("LDR1: ");
+//  Serial.println(analogRead(LDR1)); //Rechts voor
+//  Serial.println("LDR2: ");
+//  Serial.println(analogRead(LDR2)); //Rechts achter
+//  Serial.println("LDR3: ");
+//  Serial.println(analogRead(LDR3)); //Links achter
+//  Serial.println("LDR4: ");
+//  Serial.println(analogRead(LDR4)); //Links voor
+//  Serial.println("LDR5: ");
+//  Serial.println(analogRead(LDR5)); //Algemeen
   //delay(1500);
   //LASER DETECTIE
   if (analogRead(LDR0) >= laserThreshold) {
@@ -253,32 +253,32 @@ void laserDrive() { //SFC 5
     case 0: //SFC 5.0
       break;
     case 1:
-      Serial.println("VOOR");
+      //Serial.println("VOOR");
       digitalWrite(LED3, HIGH);
       ServoForward(); // Boe-Bot gaat naar voren
       break;
     case 2:
-      Serial.println("RECHTSvoor");
+      //Serial.println("RECHTSvoor");
       digitalWrite(LED2, HIGH);
       ServoSharpRight(); // Boe-Bot draait naar rechts    
       break;
     case 3:
-      Serial.println("RECHTSachter");
+      //Serial.println("RECHTSachter");
       digitalWrite(LED2, HIGH);
       ServoSharpRight(); // Boe-Bot draait naar rechts   
       break;
     case 4:
-      Serial.println("LINKSachter");
+      //Serial.println("LINKSachter");
       digitalWrite(LED1, HIGH);
       ServoSharpLeft(); //Boe-Bot draait naar links    
       break;
     case 5:
-      Serial.println("LINKSvoor");
+      //Serial.println("LINKSvoor");
       digitalWrite(LED1, HIGH);
       ServoSharpLeft(); //Boe-Bot draait naar links
       break;
     case 6:
-      Serial.println("ALGEMEEN");
+      //Serial.println("ALGEMEEN");
       digitalWrite(LED1, HIGH);
       digitalWrite(LED2, HIGH);
       digitalWrite(LED3, HIGH);
@@ -288,7 +288,7 @@ void laserDrive() { //SFC 5
   //delay(500); //DEBUG
 }
 
-char checkIR(void) { //SFC 3
+char checkIR() { //SFC 3
   //DEBUG
   /*
   Serial.println("IR0: ");
@@ -298,7 +298,7 @@ char checkIR(void) { //SFC 3
   Serial.println("IR2: ");
   Serial.println(analogRead(IR2)); //IR rechts uitlezen
   */
-   delay(1500);  // DEBUG
+   //delay(1500);  // DEBUG
   //IR DETECTIE
   int IRvalue_l = 0; // een array voor elke IR sensor: (l)inks, (m)idden en (r)echts
   int IRvalue_m = 0;
@@ -327,43 +327,43 @@ void irDrive(char LEDs)
   switch(LEDs)
   {
     case 0x01:
-      Serial.println("LINKS");
+      //Serial.println("LINKS");
       digitalWrite(LED1, HIGH);
       ServoSharpLeft();
     break;
   
     case 0x02:
-      Serial.println("VOOR");
+      //Serial.println("VOOR");
       digitalWrite(LED3, HIGH);
       ServoForward();
     break;
 
     case 0x03:
-      Serial.println("LINKS");
+      //Serial.println("LINKS");
       digitalWrite(LED1, HIGH);
       ServoTurnLeft();
     break;
   
     case 0x04:
-      Serial.println("RECHTS");
+      //Serial.println("RECHTS");
       digitalWrite(LED2, HIGH);
       ServoSharpRight();
     break;
 
     case 0x06:
-      Serial.println("RECHTS");
+      //Serial.println("RECHTS");
       digitalWrite(LED2, HIGH);
       ServoTurnRight();
     break;
 
     case 0x07:
-      Serial.println("VOOR");
+      //Serial.println("VOOR");
       digitalWrite(LED3, HIGH);
       ServoForward();
     break;
     
     default:
-      Serial.println("GEEN ir, rondje");
+      //Serial.println("GEEN ir, rondje");
       ServoSharpLeft();
   }
   //delay(500); // DEBUG
