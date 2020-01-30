@@ -139,8 +139,6 @@ void setup() {
 
 void loop()
 {
-  laserThreshold = ((analogRead(LDR0)+analogRead(LDR1)+analogRead(LDR2)+analogRead(LDR3)+analogRead(LDR4))/5) + 150; //Adaptive threshold waarde voor de richtingen
-  algemeenLaserThreshold = (analogRead(LDR5)) + 75; //Adaptive threshold waarde voor algemeen
   distanceCheck();
 }
 
@@ -183,7 +181,6 @@ void distanceCheck(void) {
      noTone(speaker);
      char IRsensorOutput = checkIR();
      irDrive(IRsensorOutput);
-    //checkLDR();
   } else if(distanceCM < 12) { //SFC 2.2
     ServoBackward();
     //Serial.println("REVERSING....");
@@ -209,6 +206,8 @@ void checkLDR() { //SFC 2.1
   Serial.println(analogRead(LDR5)); //Algemeen
   */
   //LASER DETECTIE
+  laserThreshold = ((analogRead(LDR0)+analogRead(LDR1)+analogRead(LDR2)+analogRead(LDR3)+analogRead(LDR4))/5) + 150; //Adaptive threshold waarde voor de richtingen
+  algemeenLaserThreshold = (analogRead(LDR5)) + 75; //Adaptive threshold waarde voor algemeen
   if (analogRead(LDR0) >= laserThreshold) {
     laserDetected = 1; //Voor
     laserDrive(); //SFC 5
