@@ -4,8 +4,8 @@
   #Hardware:           Arduino Mega 2560                      #
   #Eerste opzet:       26-11-2019                             #
   #Auteurs: E. Hammer | N. Vollebregt | M. Remmig | O. Cekem  #
-  #Laatst gewijzigd:   23-01-2020                             #
-  #Versie:             1.1.3                                  #
+  #Laatst gewijzigd:   30-01-2020                             #
+  #Versie:             1.2.0                                  #
   #############################################################
 
   ##WAT JE NIET MAG GEBRUIKEN##
@@ -25,7 +25,7 @@
   b.  Enz.
 */
 
-//Zie OneDrive: Schemetics>Pins.txt
+//Zie OneDrive: Schematics>Pins.txt
 //LED pin's voor visuele feedback
 #define LED0 2     //Afstand = gelijk aan threshold waarde
 #define LED1 3     //IR LED('s)/LDR('s) links nemen iets waar
@@ -57,13 +57,13 @@
 int laserThreshold;         //Drempelwaarde om de laser te detecteren
 int algemeenLaserThreshold; //Aparte drempelwaarde om een laser algemeen te detecteren
 char ReturnValue_IR = 0;    //Returnwaarde van IR-detectie functie
-int frequency; //Toonhoogte (frequentie) van geluid dat de buzzer maakt
+int frequency;              //Toonhoogte (frequentie) van geluid dat de buzzer maakt
 
 // Counter and compare values
-const uint16_t t1_load = 25535;  // from 25535 to 65535 it should take 20 ms.
-const uint16_t Stop = 28535;     // Stop timer for the servo       1.5ms
-const uint16_t Forward = 28935;  // Forward timer for the servo    1.7ms
-const uint16_t Backward = 28135; // Backward timer for the servo   1.3ms
+const uint16_t t1_load = 25535;  // Van 25535 tot 65535 duurt 20 milliseconden.
+const uint16_t Stop = 28535;     // Stop timer voor de servo        1.5ms
+const uint16_t Forward = 28935;  // Vooruit timer voor de servo     1.7ms
+const uint16_t Backward = 28135; // Achteruit timer voor de servo   1.3ms
 
 //Globale status sensoren
 char laserDetected = 0;      //0=geen|1=voor|2=rechtsVoor|3=rechtsAchter|4=linksAchter|5=linksVoor
@@ -169,7 +169,7 @@ void distanceCheck(void) {
   digitalWrite(ultraT, LOW);                //Pulse stoppen
   delayMicroseconds(10);
   distanceCM = pulseIn(ultraE, HIGH);       //Pulse terug uitlezen
-  distanceCM = distanceCM / 58;             //Calculate to CM
+  distanceCM = distanceCM / 58;             //Omrekenen naar CM (centimeter)
   //DEBUG
   /*
   Serial.println("Distance:");
@@ -177,7 +177,7 @@ void distanceCheck(void) {
   */
   if (distanceCM >= 12 && distanceCM <=15) {    //SFC 2.0
     ServoStop();
-    frequency = 1350; // High tone when standing still.
+    frequency = 1350; // Hoge toon bij stilstaan
     tone(speaker, frequency);
   } else if (distanceCM > 15) { //SFC 2.1
      noTone(speaker);
@@ -187,7 +187,7 @@ void distanceCheck(void) {
   } else if(distanceCM < 12) { //SFC 2.2
     ServoBackward();
     //Serial.println("REVERSING....");
-    frequency = 700; // Lower tone when going backward.
+    frequency = 700; // Lagere toon bij achteruitrijden
     tone(speaker, frequency);
   } 
 }
@@ -234,6 +234,7 @@ void checkLDR() { //SFC 2.1
 }
 
 void laserDrive() { //SFC 5
+  //Bepaalt servo-aansturing om op de laser af te rijden
   digitalWrite(LED4, HIGH);
   digitalWrite(LED0, LOW);
   digitalWrite(LED1, LOW);
@@ -308,6 +309,7 @@ char checkIR() { //SFC 3
 
 void irDrive(char IRdetect)
 {
+  //Bepaalt servo-aansturing om op IR (leader) af te rijden
   digitalWrite(LED4, LOW);
   digitalWrite(LED0, HIGH);
   digitalWrite(LED1, LOW);
@@ -357,44 +359,43 @@ void irDrive(char IRdetect)
   }
 }
 
-//
-// Function to stay put.
+// Functie om te stoppen
 void ServoStop(){
   OCR1A = Stop;
   OCR1B = Stop;
 }
 
-// Function to drive forward.
+// Functie om vooruit te rijden
 void ServoForward(){
   OCR1A = Forward;
   OCR1B = Backward;
 }
 
-// Function to turn left.
+// Functie om links te sturen
 void ServoTurnLeft(){
   OCR1A = Stop;
   OCR1B = Backward;
 }
 
-// Function to turn right.
+// Functie om rechts te sturen
 void ServoTurnRight(){
   OCR1A = Forward;
   OCR1B = Stop;
 }
 
-// Function to turn sharp left.
+// Functie om scherp links te sturen
 void ServoSharpLeft(){
   OCR1A = Backward;
   OCR1B = Backward;
 }
 
-// Function to turn sharp right.
+// Functie om scherp rechts te sturen
 void ServoSharpRight(){
   OCR1A = Forward;
   OCR1B = Forward;
 }
 
-// Function to drive backward.
+// Functie om acheruit te rijden
 void ServoBackward(){
   OCR1A = Backward;
   OCR1B = Forward;
