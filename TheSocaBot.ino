@@ -27,68 +27,60 @@
 
 //Zie OneDrive: Schemetics>Pins.txt
 //LED pin's voor visuele feedback
-int LED0 = 2;     //Afstand = gelijk aan threshold waarde
-int LED1 = 3;     //IR LED('s)/LDR('s) links nemen iets waar
-int LED2 = 5;     //IR LED('s)/LDR('s) alle of alleen voor iets waarnemen
-int LED3 = 4;     //IR LED('s)/LDR('s) rechts nemen iets waar
-int LED4 = 6;     //Laser wordt gedetecteerd
+#define LED0 2     //Afstand = gelijk aan threshold waarde
+#define LED1 3     //IR LED('s)/LDR('s) links nemen iets waar
+#define LED2 5     //IR LED('s)/LDR('s) alle of alleen voor iets waarnemen
+#define LED3 4     //IR LED('s)/LDR('s) rechts nemen iets waar
+#define LED4 6     //Laser wordt gedetecteerd
 //Pins voor de ultrasonic afstand sensor
-int ultraT = 7;   //Trigger pin voor de ultrasonic sensor
-int ultraE = 8;   //Echo pin voor de ultrasonic sensor
+#define ultraT 7   //Trigger pin voor de ultrasonic sensor
+#define ultraE 8   //Echo pin voor de ultrasonic sensor
 //Speaker voor geluid feedback
-int speaker = 9;  //Buzzer voor hoorbare feedback
+#define speaker 9  //Buzzer voor hoorbare feedback
 //Pins voor de servo-motoren
-const int test_left = PB5; // PB5 = Digital PWM 11
-const int test_right = PB4; // PB4 = Digital PWM 10
+#define test_left PB5 // PB5 = Digital PWM 11
+#define test_right PB4 // PB4 = Digital PWM 10
 //Pins voor de LDR laser detectie sensoren
-int LDR0 = A0;    //LDR voor
-int LDR1 = A1;    //LDR rechter hoek voor
-int LDR2 = A2;    //LDR rechter hoek achter
-int LDR3 = A3;    //LDR linker hoek achter
-int LDR4 = A4;    //LDR linker hoek voor
-int LDR5 = A8;    //LDR voor algemeen opvangen
+#define LDR0 A0    //LDR voor
+#define LDR1 A1    //LDR rechter hoek voor
+#define LDR2 A2    //LDR rechter hoek achter
+#define LDR3 A3    //LDR linker hoek achter
+#define LDR4 A4    //LDR linker hoek voor
+#define LDR5 A8    //LDR voor algemeen opvangen
 //Pins voor de IR LED's om de leader te detecteren
-int IR0 = A5;     //IR links
-int IR1 = A6;     //IR midden
-int IR2 = A7;     //IR rechts
-
-//Thresholds
-float thresholdDistance = 10.00;  //Drempelwaarde om de afstand mee te vergelijken (in CM)#10
-int laserThreshold;   //Drempelwaarde om de laser mee te detecteren #925 - #710
-int algemeenLaserThreshold; //Drempel waarde om een laser algemeen te detecteren #700 - #
-int irThreshold = 800;      //Drempelwaarde om de leader (IR) mee te detecteren #650
+#define IR0 A5     //IR links
+#define IR1 A6     //IR midden
+#define IR2 A7     //IR rechts
 
 //Globale variabelen
-char ReturnValue_IR = 0;
+#define irThreshold 650     //Drempelwaarde om de leader (IR) mee te detecteren
+int laserThreshold;         //Drempelwaarde om de laser te detecteren
+int algemeenLaserThreshold; //Aparte drempelwaarde om een laser algemeen te detecteren
+char ReturnValue_IR = 0;    //Returnwaarde van IR-detectie functie
+int frequency; //Toonhoogte (frequentie) van geluid dat de buzzer maakt
 
 // Counter and compare values
-const uint16_t t1_load = 25535;   // from 25535 to 65535 it should take 20 ms.
+const uint16_t t1_load = 25535;  // from 25535 to 65535 it should take 20 ms.
 const uint16_t Stop = 28535;     // Stop timer for the servo       1.5ms
 const uint16_t Forward = 28935;  // Forward timer for the servo    1.7ms
 const uint16_t Backward = 28135; // Backward timer for the servo   1.3ms
 
-//Sensoren
-int laserDetected = 0;      //0=geen|1=voor|2=rechtsVoor|3=rechtsAchter|4=linksAchter|5=linksVoor
-int irDetected = 0;         //0=geen|1=links|2=front|3=right
-int distance = 0;           //0=stop|1=checkLDR|2=reverse
+//Globale status sensoren
+char laserDetected = 0;      //0=geen|1=voor|2=rechtsVoor|3=rechtsAchter|4=linksAchter|5=linksVoor
 
-void distanceCheck();     // Prototype for checking the distance.
-void checkLDR();          //Prototype for detecting a laser function.
-void laserDrive();        // Prototype for driving to the laser function.
-char checkIR(void);           // Prototype for detecting IR (leader)function.
-//void irDrive();           // Prototype for driving to the leader function.
-void Drive (int timeL, int timeR);
-void ServoStop();         // Prototype for the ServoStop function.
-void ServoForward();      // Prototype for the ServoForward function.
-void ServoTurnLeft();     // Prototype for the ServoTurnLeft function.
-void ServoTurnRight();    // Prototype for the ServoTurnRight function.
-void ServoSharpLeft();    // Prototype for the ServoSharpLeft function.
-void ServoSharpRight();   // Prototype for the ServoSharpRight function.
-void ServoBackward();     // Prototype for the ServoBackward function.
-
-//Speaker
-int distanceSpeaker = 30; // Random value for testing purposes, pretending to have distance.
-int frequency; // Frequency variable.
+//Prototypes van functies
+void distanceCheck();     //Afstand meten
+void checkLDR();          //Laserdetectie
+void laserDrive();        //Aansturing op basis van laserdetectie
+char checkIR();           //IR-detectie
+void irDrive(char);       //Aansturing op basis van IR-detectie
+void ServoStop();         //Instructie aan servo's om stil te staan
+void ServoForward();      //Instructie aan servo's om vooruit te gaan
+void ServoTurnLeft();     //Instructie aan servo's om links te sturen
+void ServoTurnRight();    //Instructie aan servo's om rechts te sturen
+void ServoSharpLeft();    //Instructie aan servo's om links om as te draaien
+void ServoSharpRight();   //Instructie aan servo's om rechts om as te draaien
+void ServoBackward();     //Instructie aan servo's om achteruit te gaan
 
 //Initializeren van de firmware
 void setup() {
@@ -218,7 +210,7 @@ void checkLDR() { //SFC 2.1
   */
   //LASER DETECTIE
   if (analogRead(LDR0) >= laserThreshold) {
-    laserDetected = 1; //voor
+    laserDetected = 1; //Voor
     laserDrive(); //SFC 5
   } else if (analogRead(LDR1) >= laserThreshold) {
     laserDetected = 2; //Rechts voor
