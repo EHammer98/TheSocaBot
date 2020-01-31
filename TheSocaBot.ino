@@ -38,8 +38,8 @@
 //Speaker voor geluid feedback
 #define speaker 9  //Buzzer voor hoorbare feedback
 //Pins voor de servo-motoren
-#define test_left PB5 // PB5 = Digital PWM 11
-#define test_right PB4 // PB4 = Digital PWM 10
+#define test_left PB5 // PB5 = Digital PWM 11, left servo
+#define test_right PB4 // PB4 = Digital PWM 10, right servo
 //Pins voor de LDR laser detectie sensoren
 #define LDR0 A0    //LDR voor
 #define LDR1 A1    //LDR rechter hoek voor
