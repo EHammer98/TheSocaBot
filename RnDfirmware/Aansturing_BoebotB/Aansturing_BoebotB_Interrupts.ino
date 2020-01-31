@@ -8,11 +8,11 @@
 // 25535 --> 28335 = 1.4ms  Backward
 
 // Pins
-const int test_left = PB5;  // PB5 = Digital PWM 11.
-const int test_right = PB4; // PB4 = Digital PWM 10.
+const int test_left = PB5;  // PB5 = Digital PWM 11
+const int test_right = PB4; // PB4 = Digital PWM 10
 
 // Counter and compare values
-const uint16_t t1_load = 25535;  // from 25535 to 65535 it should take 20 ms.
+const uint16_t t1_load = 25535;  // from 25535 to 65535 it should take 20 ms
 const uint16_t Stop = 28535;     // Stop timer for the servo       1.5ms
 const uint16_t Forward = 28735;  // Forward timer for the servo    1.6ms
 const uint16_t Backward = 28335; // Backward timer for the servo   1.4ms
@@ -22,7 +22,7 @@ void setup() {
   DDRB |= (1 << test_left);
   DDRB |= (1 << test_right);
 
-  // Start the output pins high.
+  // Start the output pins high
   PORTB |= (1 << test_left);
   PORTB |= (1 << test_right);
 
@@ -50,65 +50,65 @@ void setup() {
 }
 
 void loop() {
-  delay(5000); // Pretend we're doing something interesting here. This should not matter as we are making interrupts.
+  delay(5000); // Pretend we're doing something interesting here. This should not matter as we are making interrupts
 }
 
-// When timer1 reaches COMPA (OCR1A value), put test_left low (left servo).
+// When timer1 reaches COMPA (OCR1A value), put test_left low (left servo)
 ISR(TIMER1_COMPA_vect) {
   PORTD &= ~(1 << test_left); // Set test_left low.
 }
 
-// When timer1 reaches COMPB (OCR1B value), put test_right low (right servo).
+// When timer1 reaches COMPB (OCR1B value), put test_right low (right servo)
 ISR(TIMER1_COMPB_vect) {
   PORTD &= ~(1 << test_right); // Set test_right low.
 }
 
-// When timer1 reaches OVERFLOW, put both test left and right high, also put the timer correct.
+// When timer1 reaches OVERFLOW, put both test left and right high, also put the timer correct
 ISR(TIMER1_OVF_vect) {
-  PORTD ^= ( (1 << test_left) | (1 << test_right) ); // Set test_left and test_right high.
+  PORTD ^= ( (1 << test_left) | (1 << test_right) ); // Set test_left and test_right high
   TCNT1 = t1_load; // Reset timer to the right time.
 }
 
-// In the following servo functions only the compare values will be changed depending on what function is called.
-// OCR1A = Left.
-// OCR1B = Right (values inverted).
-// Function to stay put.
+// In the following servo functions only the compare values will be changed depending on what function is called
+// OCR1A = Left
+// OCR1B = Right (values inverted)
+// Function to stay put
 void ServoStop(){
   OCR1A = Stop;
   OCR1B = Stop;
 }
 
-// Function to drive forward.
+// Function to drive forward
 void ServoForward(){
   OCR1A = Forward;
   OCR1B = Backward;
 }
 
-// Function to turn left.
+// Function to turn left
 void ServoTurnLeft(){
   OCR1A = Stop;
   OCR1B = Backward;
 }
 
-// Function to turn right.
+// Function to turn right
 void ServoTurnRight(){
   OCR1A = Forward;
   OCR1B = Stop;
 }
 
-// Function to turn sharp left.
+// Function to turn sharp left
 void ServoSharpLeft(){
   OCR1A = Backward;
   OCR1B = Backward;
 }
 
-// Function to turn sharp right.
+// Function to turn sharp right
 void ServoSharpRight(){
   OCR1A = Forward;
   OCR1B = Forward;
 }
 
-// Function to drive backward.
+// Function to drive backward
 void ServoBackward(){
   OCR1A = Backward;
   OCR1B = Forward;
